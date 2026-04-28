@@ -1591,9 +1591,10 @@ nav{
     </div>
   </div>
 </div>
-const _supabase = supabase.createClient('https://dpxmjhmsqovsbqfkyzuq.supabase.co', 'sb_publishable_wRQGHsNM1SCWXybkvZv1nA_2DQ4d_vA');
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// 填入你刚才在第二步复制的信息
+const _supabase = supabase.createClient('https://dpxmjhmsqovsbqfkyzuq.supabase.co', 'sb_publishable_wRQGHsNM1SCWXybkvZv1nA_2DQ4d_vA');
 // ═══════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════
@@ -2779,12 +2780,13 @@ function buildDetailRadar(id){
   });
 }
 
-function toggleDetail(id){
+async function toggleDetail(id){
   const t = TOOLS.find(x=>x.id===id);
   if(!t) return;
   const subcat = t.subcat.replace(/\//g,'_');
   const panel = document.getElementById(`dp-${subcat}`);
 
+  // 如果点击的是已打开的卡片，则关闭它
   if(activeDetailId===id){
     panel.classList.remove('open');
     panel.innerHTML='';
@@ -2792,6 +2794,7 @@ function toggleDetail(id){
     document.getElementById(`nc-${id}`)?.classList.remove('active');
     return;
   }
+  // 如果打开了其他卡片，先关闭旧的
   if(activeDetailId){
     const prev = TOOLS.find(x=>x.id===activeDetailId);
     if(prev){
@@ -2801,14 +2804,29 @@ function toggleDetail(id){
     }
     document.querySelectorAll('.namecard.active').forEach(c=>c.classList.remove('active'));
   }
+  
   activeDetailId = id;
   document.getElementById(`nc-${id}`)?.classList.add('active');
 
-  const saved = store[id]||{};
-  const screenshots = saved.screenshots||[];
-  const expText = saved.experience||'';
-  const expImgs = saved.expImages||[];
+  // 💡【核心魔法】：从 Supabase 云端拉取小组成员的数据
+  let expText = '';
+  let expImgs = [];
+  try {
+    const { data, error } = await _supabase
+      .from('tool_data')
+      .select('*')
+      .eq('tool_id', id)
+      .single();
+      
+    if (data) {
+      expText = data.experience || '';
+      expImgs = data.exp_images || [];
+    }
+  } catch (e) {
+    console.error("读取云端数据失败:", e);
+  }
 
+  // 渲染详情页面板
   panel.innerHTML = `
     <div class="detail-left">
       <button class="dp-close" onclick="toggleDetail('${id}')">✕</button>
@@ -2825,50 +2843,51 @@ function toggleDetail(id){
         <div class="dp-flow">${t.howFlow.split('→').map((step,i,arr)=>`<span class="dp-flow-step">${step.trim()}</span>${i<arr.length-1?'<span class="dp-flow-arrow">→</span>':''}`).join('')}</div>
         <span style="color:var(--dimmer);font-size:12px">${t.howType}</span><br><br>${t.howMechanism}
       </div>
-      ${expText||expImgs.length?`<div class="dp-section-title">使用体验记录</div>
-      <div class="saved-exp show">${expText?`<p>${expText}</p>`:''}<div class="saved-exp-imgs">${expImgs.map(i=>`<img src="${i}">`).join('')}</div></div>`:''}
+      
+      ${expText||expImgs.length?`<div class="dp-section-title" style="margin-top:24px; border-bottom-color:rgba(0,0,0,0.1)">小组成员体验记录</div>
+      <div class="saved-exp show" style="margin-top:12px">
+        ${expText?`<p style="color:rgba(0,0,0,0.7);font-size:13px;line-height:1.6;margin-bottom:12px;background:rgba(0,0,0,0.03);padding:12px;border-radius:6px;">${expText}</p>`:''}
+        <div class="screenshot-preview-grid">
+          ${expImgs.map(i=>`<img src="${i}" style="border:1px solid rgba(0,0,0,0.1)">`).join('')}
+        </div>
+      </div>`:''}
     </div>
+    
     <div class="detail-right" style="padding:24px;display:flex;flex-direction:column;overflow:hidden;">
-      <!-- Tab bar -->
       <div class="dr-tab-bar">
         <div class="dr-tab active" onclick="switchDrTab(this,'dr-pane-ss-${id}')">关键界面</div>
         <div class="dr-tab" onclick="switchDrTab(this,'dr-pane-collab-${id}')">人机协作图谱</div>
         <div class="dr-tab" onclick="switchDrTab(this,'dr-pane-radar-${id}')">五维雷达图</div>
       </div>
-      <!-- Pane 1: Screenshots -->
+      
       <div class="dr-pane active" id="dr-pane-ss-${id}">
-        <div class="screenshot-upload">
-          <input type="file" accept="image/*" multiple id="ss-input-${id}" onchange="handleScreenshot(event,'${id}')" style="display:none!important">
-          <label for="ss-input-${id}">上传截图</label>
-          <p>📸 点击上传关键页面截图<br><span style="color:var(--dimmer);font-size:11px">支持多张，本地保存</span></p>
-        </div>
-        <div class="screenshot-preview-grid" id="ss-${id}">
-          ${screenshots.map(s=>`<img src="${s}">`).join('')}
+        <div class="screenshot-upload" style="margin-top:30px;text-align:center;">
+          <button class="btn btn-primary" onclick="openExpModal('${id}')">上传使用体验与截图</button>
+          <p style="margin-top:14px;font-size:12px;color:rgba(0,0,0,0.4)">✨ 上传后小组全体成员均可实时查看</p>
         </div>
       </div>
-      <!-- Pane 2: Collab steps -->
+      
       <div class="dr-pane" id="dr-pane-collab-${id}">
-        <div style="font-size:11px;color:var(--dimmer);margin-bottom:10px;letter-spacing:.06em;display:flex;gap:12px;flex-wrap:wrap">
+        <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:10px;letter-spacing:.06em;display:flex;gap:12px;flex-wrap:wrap">
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(110,150,255,.7);margin-right:4px;vertical-align:middle"></span>人</span>
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(51,183,90,.7);margin-right:4px;vertical-align:middle"></span>AI</span>
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(192,132,252,.7);margin-right:4px;vertical-align:middle"></span>协同</span>
         </div>
         <div class="dp-collab-wrap">${buildCollabStepsHtml(t)}</div>
       </div>
-      <!-- Pane 3: Radar -->
+      
       <div class="dr-pane" id="dr-pane-radar-${id}">
-        <div style="font-size:11px;color:var(--dimmer);margin-bottom:12px;letter-spacing:.06em">五维评估 · 满分 5 分</div>
+        <div style="font-size:11px;color:rgba(0,0,0,0.4);margin-bottom:12px;letter-spacing:.06em">五维评估 · 满分 5 分</div>
         <div style="display:flex;justify-content:center;padding:8px 0;">
           <canvas id="dp-radar-canvas-${id}" width="260" height="260"></canvas>
         </div>
       </div>
     </div>`;
-  // draw radar chart for detail panel after DOM insert
+    
   setTimeout(()=>buildDetailRadar(id), 50);
   panel.classList.add('open');
   panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
 function handleScreenshot(e,id){
   const files = Array.from(e.target.files);
   files.forEach(file=>{
@@ -3044,18 +3063,30 @@ document.getElementById('expImgInput').addEventListener('change',e=>{
     r.readAsDataURL(file);
   });
 });
-function saveExp(){
+async function saveExp() {
   if(!currentExpId) return;
-  const text=document.getElementById('expText').value.trim();
-  const saved=store[currentExpId]||{};
-  store[currentExpId]={...saved,experience:text,expImages:expModalImages};
-  saveStore();
-  closeExpModal();
-  // refresh detail if open
-  if(activeDetailId===currentExpId) toggleDetail(currentExpId), setTimeout(()=>toggleDetail(currentExpId),10);
-}
-document.getElementById('expModal').addEventListener('click',e=>{if(e.target===document.getElementById('expModal'))closeExpModal();});
+  const text = document.getElementById('expText').value.trim();
+  
+  // 推送数据到 Supabase 云端
+  const { data, error } = await _supabase
+    .from('tool_data')
+    .upsert({ 
+      tool_id: currentExpId, 
+      experience: text, 
+      exp_images: expModalImages 
+    }, { onConflict: 'tool_id' }); // 如果该工具已有记录，则覆盖更新
 
+  if (error) {
+    alert("上传失败：" + error.message);
+  } else {
+    alert("保存成功！小组成员刷新即可看到。");
+    closeExpModal();
+    // 强制刷新当前打开的详情页以显示新内容
+    const oldId = activeDetailId;
+    toggleDetail(oldId); 
+    toggleDetail(oldId);
+  }
+}
 // ═══════════════════════════════════════════════════
 // COMPARE
 // ═══════════════════════════════════════════════════
