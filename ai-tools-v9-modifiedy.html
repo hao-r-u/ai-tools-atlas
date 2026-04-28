@@ -1,0 +1,4272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从工具到赋能：全品类 AI 调研报告及面向交互设计师的AI工具设计方法论</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* ══ TOKENS ══ */
+:root{
+  --black:#030303; --black2:#080808; --black3:#0f0f0f;
+  --white:#f5f3ee; --paper:#f0eee8; --paper2:#e8e6e0;
+  --text-dark:#101010; --text-light:#f4f4f0;
+  --muted-light:rgba(255,255,255,.55); --muted-dark:rgba(0,0,0,.52);
+  --green:#33e36f; --green-soft:#8cffad; --green-glow:rgba(51,227,111,.35);
+  --green-dark:#0c6b35;
+  --orange:#e8662a; --orange-soft:#f19a56;
+  --line-light:rgba(255,255,255,.14); --line-dark:rgba(0,0,0,.13);
+  --cat1:#33e36f; --cat2:#8cffad; --cat3:#e8662a; --cat4:#f19a56;
+  --accent:var(--green);
+  --r:14px;
+  /* semantic aliases */
+  --bg:var(--black); --bg2:var(--black2); --bg3:var(--black3);
+  --text:var(--text-light); --dim:var(--muted-light); --dimmer:rgba(255,255,255,.32);
+  --border:var(--line-light); --border2:rgba(255,255,255,.20);
+  --card:rgba(255,255,255,.04); --card-deep:rgba(8,8,8,.88);
+}
+
+/* ══ RESET ══ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--black);color:var(--text-light);
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:15px;line-height:1.7;overflow-x:hidden;
+}
+button,input,textarea,select{
+  font-family:inherit;border:none;outline:none;background:none;
+  -webkit-appearance:none;appearance:none;
+}
+button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:1.5px solid var(--green);outline-offset:2px;
+}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+
+/* ══ NAV ══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  background:rgba(3,3,3,.72);
+  border-bottom:1px solid var(--line-light);
+  display:flex;align-items:center;
+  padding:0 48px;height:54px;gap:28px;
+}
+.nav-brand{
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;
+  color:rgba(244,244,240,.45);letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;
+}
+.nav-brand span{color:var(--green);letter-spacing:.04em;}
+.nav-links{display:flex;flex:1;justify-content:center;gap:0;}
+.nav-links a{
+  color:rgba(255,255,255,.42);text-decoration:none;
+  font-size:12px;font-weight:500;letter-spacing:.04em;
+  padding:0 14px;height:54px;
+  display:flex;align-items:center;gap:6px;
+  border-bottom:2px solid transparent;
+  transition:color .22s,border-color .22s;white-space:nowrap;
+}
+.nav-links a:hover{color:var(--text-light);}
+.nav-links a.active{color:var(--green);border-bottom-color:var(--green);}
+.ndot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+/* ══ HERO ══ */
+#hero{
+  min-height:100vh;position:relative;
+  background:var(--black);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:100px 72px 80px;overflow:hidden;
+}
+/* green diffuse glow */
+.hero-sphere{
+  position:absolute;right:4%;top:50%;transform:translateY(-50%);
+  width:min(580px,50vw);height:min(580px,50vw);
+  border-radius:50%;
+  background:radial-gradient(ellipse at 45% 45%, rgba(140,255,173,.55) 0%, rgba(51,227,111,.28) 28%, rgba(10,107,47,.10) 58%, transparent 75%);
+  filter:blur(48px);
+  pointer-events:none;z-index:0;
+}
+/* left side nav hint */
+.hero-sidenav{
+  position:absolute;left:24px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:14px;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;
+  color:rgba(255,255,255,.25);text-transform:uppercase;
+  writing-mode:vertical-rl;text-orientation:mixed;
+  transform:translateY(-50%) rotate(180deg);
+}
+.hero-sidenav a{
+  color:rgba(255,255,255,.25);text-decoration:none;
+  transition:color .2s;
+}
+.hero-sidenav a:hover{color:var(--green);}
+/* text */
+.hero-label{
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;
+  color:rgba(255,255,255,.32);text-transform:uppercase;
+  margin-bottom:26px;display:flex;align-items:center;gap:10px;position:relative;z-index:1;
+}
+.hero-label::before{content:'';width:28px;height:1px;background:var(--green);opacity:.6;}
+.hero-big{
+  font-family:'Noto Sans SC',sans-serif;font-weight:900;
+  line-height:.95;margin-bottom:28px;position:relative;z-index:1;
+  max-width:58%;
+}
+.hero-big .h-line1,.hero-big .h-line2{
+  display:block;
+  font-size:clamp(64px,9vw,132px);
+  color:var(--text-light);letter-spacing:-.02em;
+}
+.hero-big .h-line3{
+  display:block;
+  font-family:'Space Mono',monospace;font-weight:400;
+  font-size:clamp(13px,1.6vw,20px);
+  color:rgba(255,255,255,.32);
+  letter-spacing:.06em;margin-top:14px;
+}
+.hero-sub-wrap{position:relative;z-index:1;max-width:440px;margin-bottom:36px;}
+.hero-sub{font-size:clamp(13px,1.3vw,15px);color:var(--muted-light);line-height:1.75;margin-bottom:6px;}
+.hero-sub-small{font-size:12px;color:rgba(255,255,255,.32);line-height:1.8;}
+/* hero buttons */
+.hero-btns{display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:relative;z-index:1; margin-top: 40px;}
+.hbtn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;border-radius:4px;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;
+  transition:all .25s;
+}
+.hbtn-primary{
+  background:var(--green);color:var(--black);
+  box-shadow:0 0 28px rgba(51,227,111,.3);
+}
+.hbtn-primary:hover{background:var(--green-soft);box-shadow:0 0 44px rgba(51,227,111,.45);}
+.hbtn-secondary{
+  background:transparent;color:rgba(255,255,255,.7);
+  border:1px solid rgba(255,255,255,.2);
+}
+.hbtn-secondary:hover{border-color:var(--green);color:var(--green);}
+/* hero stats */
+.hero-stats{
+  position:absolute;right:72px;bottom:80px;
+  display:flex;gap:36px;z-index:1;
+}
+.hero-stat{text-align:right;}
+.hero-stat-num{
+  font-family:'Space Mono',monospace;
+  font-size:clamp(16px,2vw,24px);font-weight:700;
+  color:var(--text-light);display:block;line-height:1;
+}
+.hero-stat-label{
+  font-size:9px;color:rgba(255,255,255,.32);
+  letter-spacing:.14em;text-transform:uppercase;
+  font-family:'Space Mono',monospace;display:block;margin-top:4px;
+}
+.hero-meta-bottom{
+  position:absolute;bottom:40px;left:72px;right:72px;
+  display:flex;justify-content:space-between;align-items:flex-end;z-index:1;
+}
+.hero-scroll{
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,.32);letter-spacing:.14em;
+  display:flex;align-items:center;gap:10px;
+}
+.hero-scroll::before{content:'';width:28px;height:1px;background:var(--green);opacity:.5;}
+.hero-meta-info{
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:rgba(255,255,255,.25);text-align:right;line-height:2.2;
+}
+
+/* ══ SECTION SHARED ══ */
+.section-wrap{
+  padding:90px 72px;
+
+  border-top:1px solid rgba(255,255,255,.06);
+  position:relative;overflow:hidden;
+}
+/* alternating: odd=black, even=white */
+.section-wrap:nth-child(odd){background:var(--black);}
+.section-wrap.alt{background:var(--paper);}
+/* override with explicit classes */
+.sec-dark{background:var(--black)!important;color:var(--text-light)!important;}
+/* ══ 浅色区域终极适配（变量反转 + 硬编码强行覆盖） ══ */
+.sec-light {
+  background: #F0EEE8 !important; /* 统一为米白色底 */
+  color: #101010 !important;
+  /* 魔法变量：解决所有使用变量的 JS 动态生成文字 */
+  --text-light: #101010; 
+  --text: #101010;
+  --muted-light: rgba(0, 0, 0, 0.65);
+  --dim: rgba(0, 0, 0, 0.6);
+  --dimmer: rgba(0, 0, 0, 0.45);
+  --line-light: rgba(0, 0, 0, 0.15);
+  --border2: rgba(0, 0, 0, 0.1);
+}
+
+/* 1. 导航标签与按钮 */
+.sec-light .sec-nav-tab, 
+.sec-light .how-tab { color: rgba(0,0,0,0.5) !important; border: 1px solid rgba(0,0,0,0.1) !important; }
+.sec-light .sec-nav-tab:hover, 
+.sec-light .how-tab:hover { color: #101010 !important; background: rgba(0,0,0,0.05) !important; }
+.sec-light .sec-nav-tab.active, 
+.sec-light .how-tab.active { background: var(--green) !important; color: var(--black) !important; border-color: var(--green) !important; }
+
+/* 2. 工具卡片（补充被遗漏的硬编码覆盖，解决卡片内白字） */
+.sec-light .namecard { background: #ffffff !important; border-color: rgba(0, 0, 0, 0.1) !important; }
+.sec-light .nc-name { color: #101010 !important; }
+.sec-light .nc-url { color: rgba(0, 0, 0, 0.4) !important; }
+.sec-light .nc-tagline-bubble { background: rgba(0, 0, 0, 0.05) !important; border-color: rgba(0, 0, 0, 0.1) !important; color: rgba(0, 0, 0, 0.6) !important; }
+.sec-light .nc-logo-wrap { background: rgba(0, 0, 0, 0.04) !important; border-color: rgba(0, 0, 0, 0.1) !important; color: rgba(0, 0, 0, 0.5) !important; }
+
+/* 3. 详情面板 */
+.sec-light .detail-panel { 
+  background: #F0EEE8 !important; 
+  border: 1px solid rgba(0,0,0,0.12) !important;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08) !important;
+}
+.sec-light .dp-section-title { color: var(--green-dark) !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
+
+/* 修复：详情页内未点击的 Tab 标签（关键界面、图谱、雷达图）变白问题 */
+.sec-light .dr-tab { color: rgba(0,0,0,0.5) !important; border-bottom-color: transparent !important; }
+.sec-light .dr-tab.active { color: var(--green-dark) !important; border-bottom-color: var(--green-dark) !important; }
+
+/* 4. 协作图谱与动态气泡 */
+.sec-light .dp-comic-bubble.human { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.1) !important; color: #101010 !important; }
+.sec-light .dp-comic-bubble.ai { background: rgba(51,227,111,0.15) !important; color: var(--green-dark) !important; border-color: rgba(51,227,111,0.3) !important; }
+.sec-light .dp-comic-avatar { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.1) !important; }
+.sec-light .ct-track { background: rgba(0,0,0,0.05) !important; }
+.sec-light .ct-seg { color: #101010 !important; border-right-color: rgba(0,0,0,0.15) !important; }
+.sec-light .dp-flow-step { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.1) !important; color: #101010 !important; }
+.sec-light .screenshot-upload label { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.1) !important; color: rgba(0,0,0,0.6) !important; }
+.sec-light .dp-flow-arrow { color: var(--green-dark) !important; }
+
+/* 5. 矩阵、雷达图与表格 */
+.sec-light .af-node { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.15) !important; color: #101010 !important; }
+.sec-light .mx-strong { background: rgba(51,183,90,.15) !important; color: var(--green-dark) !important; border-color: rgba(51,183,90,.4) !important; }
+.sec-light .mx-mid { background: rgba(0,0,0,.06) !important; border-color: rgba(0,0,0,.1) !important; color: rgba(0,0,0,.7) !important;}
+.sec-light .mx-weak { color: rgba(0,0,0,0.5) !important; border-color: rgba(0,0,0,0.05) !important; }
+.sec-light .mx-cell { border-color: rgba(0,0,0,0.07) !important; }
+.sec-light .radar-card { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; }
+.sec-light .comp-table th { background: rgba(0,0,0,0.04) !important; color: rgba(0,0,0,0.6) !important; }
+.sec-num{
+  font-family:'Space Mono',monospace;font-size:10px;
+  color:rgba(255,255,255,.32);letter-spacing:.22em;margin-bottom:8px;text-transform:uppercase;
+}
+.sec-eyebrow{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.28em;
+  color:var(--green);text-transform:uppercase;margin-bottom:10px;display:block;
+}
+.sec-title{
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:clamp(24px,3vw,40px);font-weight:900;
+  margin-bottom:14px;line-height:1.15;letter-spacing:-.01em;
+  color:var(--text-light);
+}
+.sec-desc{
+  font-size:13px;color:var(--muted-light);
+  max-width:540px;line-height:1.85;margin-bottom:48px;
+}
+
+/* section decorative sphere (small) */
+.sec-deco{
+  position:absolute;pointer-events:none;z-index:0;
+  border-radius:50%;
+  filter:blur(60px);opacity:.18;
+}
+.sec-deco-green{background:radial-gradient(circle,#33e36f,#0a6b2f 60%,transparent 80%);}
+.sec-deco-orange{background:radial-gradient(circle,#e8662a,#7a2a00 60%,transparent 80%);}
+
+/* ══ MINDMAP SECTION ══ */
+#mindmap{
+  background:var(--paper)!important;
+  border-top:1px solid rgba(0,0,0,.08)!important;
+}
+#mindmap .sec-num{color:rgba(0,0,0,.38)!important;}
+#mindmap .sec-eyebrow{color:var(--green-dark)!important;}
+#mindmap .sec-title{color:var(--text-dark)!important;}
+#mindmap .sec-desc{color:rgba(0,0,0,.5)!important;}
+#mindmap svg text{font-family:'Noto Sans SC',sans-serif;}
+.mindmap-wrap{
+  border:1px solid rgba(0,0,0,.1);border-radius:20px;
+  padding:28px;overflow-x:auto;
+  background:rgba(255,255,255,.55);
+}
+.mindmap-upload-zone{
+  min-height:320px;border-radius:14px;
+  border:2px dashed rgba(12,107,53,.3);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  cursor:pointer;transition:border-color .2s,background .2s;
+  padding:40px 24px;text-align:center;
+  background:rgba(255,255,255,.3);
+}
+.mindmap-upload-zone:hover{border-color:rgba(12,107,53,.6);background:rgba(51,183,90,.05);}
+.mindmap-upload-icon{width:48px;height:48px;margin:0 auto 16px;color:rgba(12,107,53,.5);}
+.mindmap-upload-icon svg{width:100%;height:100%;}
+.mindmap-upload-title{font-size:15px;font-weight:700;color:var(--text-dark);margin-bottom:6px;}
+.mindmap-upload-sub{font-size:12px;color:rgba(0,0,0,.4);line-height:1.7;}
+
+/* ══ SEARCH SECTION ══ */
+#search-section{
+  padding:52px 72px;
+  background:var(--black);
+  border-top:1px solid rgba(255,255,255,.06);
+  position:relative;
+}
+#search-section::before{
+  content:'';position:absolute;
+  width:400px;height:300px;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse,rgba(51,227,111,.07),transparent 70%);
+  pointer-events:none;
+}
+.search-bar-wrap{max-width:680px;margin:0 auto;position:relative;}
+.search-bar{
+  width:100%;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:6px;
+  padding:18px 68px 18px 26px;
+  font-size:14px;color:var(--text-light);cursor:pointer;
+  transition:border-color .22s,box-shadow .22s;
+}
+.search-bar::placeholder{color:rgba(255,255,255,.3);}
+.search-bar:focus,.search-bar:hover{border-color:rgba(51,227,111,.45);}
+/* FIXED: unified class name for search button */
+.search-btn{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:42px;height:42px;border-radius:50%;
+  background:var(--green);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 0 18px rgba(51,227,111,.3);
+}
+.search-btn:hover{transform:translateY(-50%) scale(1.08);box-shadow:0 0 28px rgba(51,227,111,.5);}
+.search-btn svg{width:16px;height:16px;stroke:var(--black);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+/* keep old alias working */
+.search-icon-btn{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:42px;height:42px;border-radius:50%;
+  background:var(--green);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 0 18px rgba(51,227,111,.3);
+  font-size:0;
+}
+.search-icon-btn::after{
+  content:'';
+  width:16px;height:16px;display:block;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23030303' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-size:contain;background-repeat:no-repeat;
+}
+.search-icon-btn:hover{transform:translateY(-50%) scale(1.08);box-shadow:0 0 28px rgba(51,227,111,.5);}
+
+/* ══ SECTION NAV TABS ══ */
+.sec-nav-tabs{
+  display:flex;gap:2px;margin-bottom:38px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:6px;padding:4px;width:fit-content;
+}
+.sec-nav-tab{
+  padding:8px 20px;border-radius:4px;
+  font-size:12px;font-weight:600;letter-spacing:.04em;
+  color:rgba(255,255,255,.4);cursor:pointer;
+  transition:all .22s;white-space:nowrap;
+}
+.sec-nav-tab.active{
+  background:var(--green);color:var(--black);
+}
+.sec-nav-tab:hover:not(.active){color:var(--text-light);}
+.sec-pane{display:none;}
+.sec-pane.active{display:block;}
+
+/* ══ SUBCAT ══ */
+.subcat-row{margin-bottom:60px;}
+.subcat-label{
+  font-family:'Space Mono',monospace;font-size:9px;font-weight:700;
+  color:var(--green);letter-spacing:.26em;text-transform:uppercase;margin-bottom:6px;
+}
+.subcat-oneliner{
+  font-size:13px;color:var(--muted-light);
+  margin-bottom:20px;max-width:640px;line-height:1.7;
+}
+.subcat-divider{
+  height:1px;
+  background:linear-gradient(90deg,rgba(51,227,111,.3),rgba(232,102,42,.12),transparent);
+  margin-bottom:20px;
+}
+
+/* ══ NAMECARDS ══ */
+.namecard-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;margin-bottom:0;
+}
+.namecard{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;padding:22px 18px;
+  cursor:pointer;
+  transition:transform .28s,border-color .28s,background .28s,box-shadow .28s;
+  position:relative;user-select:none;overflow:hidden;
+}
+.namecard:hover{
+  transform:translateY(-4px);
+  border-color:rgba(51,227,111,.45);
+  background:rgba(51,227,111,.04);
+  box-shadow:0 12px 32px rgba(0,0,0,.3);
+}
+.namecard.active{
+  border-color:var(--green);
+  background:rgba(51,227,111,.06);
+}
+.nc-logo-wrap{
+  width:38px;height:38px;border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.10);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;font-family:'Space Mono',monospace;
+  color:rgba(255,255,255,.5);
+  margin-bottom:12px;letter-spacing:-.02em;
+  overflow:hidden;
+}
+.nc-name{font-size:14px;font-weight:700;color:var(--text-light);margin-bottom:4px;line-height:1.25;}
+.nc-tagline{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;margin-top:4px;}
+.nc-tagline-bubble{
+  display:inline-block;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:100px;
+  padding:3px 10px;
+  font-size:10px;
+  color:rgba(255,255,255,.6);
+  line-height:1.5;
+  white-space:nowrap;
+}
+.nc-url{font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,.28);letter-spacing:.04em;}
+.nc-badge{
+  display:inline-flex;align-items:center;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:100px;padding:2px 8px;
+  font-size:9px;color:rgba(255,255,255,.35);
+  margin-bottom:10px;font-family:'Space Mono',monospace;
+}
+.tested-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:100px;
+  font-size:9px;font-weight:700;letter-spacing:.08em;
+  font-family:'Space Mono',monospace;
+}
+.tested-yes{background:rgba(51,227,111,.10);border:1px solid rgba(51,227,111,.22);color:rgba(51,227,111,.8);}
+.tested-no{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--dimmer);}
+.nc-compare-btn{
+  position:absolute;bottom:12px;right:12px;
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;cursor:pointer;
+  transition:all .2s;opacity:0;color:var(--text-light);
+}
+.namecard:hover .nc-compare-btn{opacity:1;}
+.nc-compare-btn:hover{background:rgba(51,227,111,.22);border-color:rgba(51,227,111,.5);}
+.nc-compare-btn.added{opacity:1;background:rgba(51,227,111,.25);border-color:var(--green);}
+.nc-drag{
+  position:absolute;top:10px;right:10px;
+  font-size:11px;color:var(--dimmer);cursor:grab;opacity:0;transition:opacity .2s;
+}
+.namecard:hover .nc-drag{opacity:0.4;}
+
+/* ══ DETAIL PANEL ══ */
+.detail-panel{
+  display:none;
+  background:rgba(8,8,8,.94);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  margin-top:18px;overflow:hidden;
+}
+.detail-panel.open{display:grid;grid-template-columns:1fr 1fr;}
+.dp-left{padding:32px;border-right:1px solid rgba(255,255,255,.07);position:relative;}
+.dp-right{padding:26px 30px;}
+.dp-logo-wrap{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:800;font-family:'Space Mono',monospace;
+  color:rgba(255,255,255,.45);
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.dp-name{font-size:20px;font-weight:800;letter-spacing:-.01em;margin-bottom:5px;color:var(--text-light);}
+.dp-domain{font-family:'Space Mono',monospace;font-size:9px;color:var(--dimmer);margin-bottom:12px;letter-spacing:.06em;}
+.dp-tagline{
+  font-size:13px;color:var(--text-light);line-height:1.65;
+  padding-left:10px;border-left:2px solid var(--green);margin-bottom:14px;
+}
+.dp-tagline-orange{border-color:var(--orange);}
+.dp-what{font-size:12px;color:var(--muted-light);line-height:1.8;}
+.dp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;}
+.dp-tag{
+  padding:3px 10px;border-radius:4px;
+  font-size:9px;font-weight:700;letter-spacing:.08em;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  color:var(--dimmer);font-family:'Space Mono',monospace;
+}
+/* flow chart */
+.dp-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.dp-flow-step{padding:6px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:6px;font-size:11px;color:var(--text-light);white-space:nowrap;}
+.dp-flow-arrow{color:var(--green);font-size:14px;}
+/* right pane tabs */
+.dr-tabs{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;overflow-x:auto;}
+.dr-tab{
+  padding:9px 16px;font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:rgba(255,255,255,.32);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;
+}
+.dr-tab:hover{color:var(--muted-light);}
+.dr-tab.active{color:var(--green);border-bottom-color:var(--green);}
+.dr-pane{display:none;}
+.dr-pane.active{display:block;}
+/* steps */
+.dp-steps{display:flex;flex-direction:column;gap:7px;}
+.dp-step{
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:8px;padding:10px 12px;
+}
+.dp-step-actor{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 7px;border-radius:3px;
+  font-size:9px;font-weight:700;letter-spacing:.08em;white-space:nowrap;flex-shrink:0;
+}
+.actor-human,.dp-step-actor.h{background:rgba(51,108,255,.15);color:rgba(110,150,255,.9);border:1px solid rgba(51,108,255,.25);}
+.actor-ai,.dp-step-actor.a{background:rgba(51,227,111,.12);color:rgba(51,183,90,.9);border:1px solid rgba(51,183,90,.22);}
+.dp-step-actor.b{background:rgba(168,85,247,.15);color:rgba(192,132,252,.9);border:1px solid rgba(168,85,247,.25);}
+.dp-step-text{font-size:11px;color:var(--muted-light);line-height:1.65;}
+.dp-radar-wrap{display:none!important;}
+/* detail panel section titles */
+.dp-section-title{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--green);margin-top:18px;margin-bottom:6px;
+  padding-bottom:5px;border-bottom:1px solid rgba(51,227,111,.15);
+}
+/* comic style for collaboration */
+.dp-collab-comic{display:flex;flex-direction:column;gap:16px;padding:8px 0;}
+.dp-comic-panel{display:flex;gap:12px;align-items:flex-start;}
+.dp-comic-panel.reverse{flex-direction:row-reverse;}
+.dp-comic-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:2px solid;background:rgba(255,255,255,.05);}
+.dp-comic-avatar.human{border-color:rgba(51,108,255,.4);background:rgba(51,108,255,.08);}
+.dp-comic-avatar.ai{border-color:rgba(51,227,111,.4);background:rgba(51,227,111,.08);}
+.dp-comic-avatar.both{border-color:rgba(168,85,247,.4);background:rgba(168,85,247,.08);}
+.dp-comic-bubble{position:relative;padding:10px 14px;border-radius:12px;max-width:75%;font-size:11px;line-height:1.6;color:var(--text-light);}
+.dp-comic-bubble.human{background:rgba(51,108,255,.12);border:1px solid rgba(51,108,255,.25);}
+.dp-comic-bubble.ai{background:rgba(51,227,111,.10);border:1px solid rgba(51,227,111,.22);}
+.dp-comic-bubble.both{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);}
+.dp-comic-label{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;opacity:.7;}
+
+/* ══ HOW SECTION ══ */
+.how-section{margin-top:44px;padding-top:36px;border-top:1px solid rgba(255,255,255,.07);}
+.how-section-title{font-size:16px;font-weight:800;margin-bottom:7px;color:var(--text-light);}
+.how-section-sub{font-size:12px;color:var(--muted-light);margin-bottom:22px;line-height:1.7;}
+.how-tabs{
+  display:flex;gap:2px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:6px;padding:4px;width:fit-content;margin-bottom:24px;flex-wrap:wrap;
+}
+.how-tab{
+  padding:7px 16px;border-radius:4px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+  color:rgba(255,255,255,.38);cursor:pointer;transition:all .22s;white-space:nowrap;
+}
+.how-tab.active{background:var(--green);color:var(--black);}
+.how-tab:hover:not(.active){color:var(--text-light);}
+/* agent flow */
+.agent-flow-wrap{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:18px;}
+.af-node{
+  padding:9px 16px;border-radius:6px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  font-size:12px;font-weight:600;color:var(--muted-light);white-space:nowrap;
+}
+.af-node.highlight{
+  background:rgba(51,227,111,.10);
+  border-color:rgba(51,227,111,.28);color:rgba(51,183,90,.9);
+}
+.af-arrow{
+  width:28px;height:1px;flex-shrink:0;
+  background:linear-gradient(90deg,rgba(51,227,111,.35),rgba(232,102,42,.25));
+  position:relative;
+}
+.af-arrow::after{
+  content:'›';position:absolute;right:-5px;top:-7px;
+  font-size:12px;color:rgba(51,227,111,.5);
+}
+/* collab timeline */
+.ct-legend{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.ct-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted-light);}
+.ct-legend-dot{width:10px;height:10px;border-radius:2px;}
+.ct-human{background:rgba(80,120,255,.55)!important;}
+.ct-ai{background:rgba(51,227,111,.55)!important;}
+.ct-both{background:rgba(232,102,42,.55)!important;}
+.collab-timeline{display:flex;flex-direction:column;gap:9px;}
+.ct-row{display:flex;align-items:center;gap:12px;}
+.ct-tool{font-size:11px;color:var(--muted-light);width:180px;flex-shrink:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ct-track{flex:1;height:24px;border-radius:4px;background:rgba(255,255,255,.04);position:relative;overflow:hidden;}
+.ct-seg{
+  position:absolute;top:0;bottom:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.75);
+  border-right:1px solid rgba(0,0,0,.15);
+}
+.ct-seg.ct-human{background:rgba(80,120,255,.35);}
+.ct-seg.ct-ai{background:rgba(51,227,111,.35);}
+.ct-seg.ct-both{background:rgba(232,102,42,.35);}
+.collab-section{overflow-x:auto;}
+/* comp table */
+.comp-scroll{overflow-x:auto;}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px;}
+.comp-table th{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  padding:10px 14px;text-align:left;
+  color:var(--dimmer);font-family:'Space Mono',monospace;
+  font-size:9px;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;
+}
+.comp-table td{border:1px solid rgba(255,255,255,.06);padding:10px 14px;color:var(--muted-light);line-height:1.6;vertical-align:top;}
+.comp-table tr:hover td{background:rgba(255,255,255,.02);}
+
+/* ══ MATRIX ══ */
+.mx-header-row{display:grid;grid-template-columns:180px repeat(5,1fr);gap:5px;margin-bottom:5px;min-width:580px;}
+.mx-header-cell{font-family:'Space Mono',monospace;font-size:9px;color:var(--dimmer);text-align:center;padding:5px;letter-spacing:.1em;text-transform:uppercase;}
+.matrix-grid{display:flex;flex-direction:column;gap:5px;overflow-x:auto;}
+.mx-row{display:grid;grid-template-columns:180px repeat(5,1fr);gap:5px;min-width:580px;}
+.mx-tool{font-size:11px;font-weight:600;color:var(--muted-light);display:flex;align-items:center;gap:5px;padding:0 4px;}
+.mx-cell{text-align:center;font-size:10px;font-weight:700;padding:7px 4px;border-radius:5px;font-family:'Space Mono',monospace;letter-spacing:.04em;border:1px solid transparent;transition:all .2s;}
+.mx-strong{background:rgba(51,183,90,.12);color:rgba(51,183,90,.85);border-color:rgba(51,183,90,.22);}
+.mx-mid{background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);border-color:rgba(255,255,255,.08);}
+.mx-weak{background:transparent;color:rgba(255,255,255,.25);border-color:rgba(255,255,255,.05);}
+.mx-none{background:transparent;color:var(--dimmer);opacity:.3;}
+
+/* ══ RADAR ══ */
+.radar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.radar-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:20px;
+  transition:border-color .25s;
+}
+.radar-card:hover{border-color:rgba(51,227,111,.35);}
+.radar-card-name{font-size:12px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--text-light);}
+
+/* ══ COMPARE DOCK ══ */
+.compare-dock{position:fixed;bottom:24px;right:24px;z-index:800;display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.compare-doc-icon{
+  width:56px;height:56px;
+  background:rgba(8,8,8,.95);
+  border:1.5px solid rgba(255,255,255,.25);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:0;
+  transition:all .22s;position:relative;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);
+}
+.compare-doc-icon::after{
+  content:'';width:24px;height:24px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='14' y='14' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3C/svg%3E");
+  background-size:contain;background-repeat:no-repeat;
+}
+.compare-doc-icon:hover{border-color:rgba(51,227,111,.6);box-shadow:0 0 24px rgba(51,227,111,.25);}
+.compare-count{
+  position:absolute;top:-5px;right:-5px;
+  width:17px;height:17px;
+  background:var(--green);border-radius:50%;
+  font-size:9px;color:var(--black);font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ══ COMPARE MODAL (FIXED) ══ */
+.compare-modal{
+  display:none;position:fixed;inset:0;z-index:9998;
+  background:rgba(0,0,0,.8);
+  align-items:flex-start;justify-content:center;
+  padding:48px 24px;overflow-y:auto;
+}
+.compare-modal.open{display:flex;}
+.compare-modal-inner,.cmi-inner{
+  background:#0a0a0a;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  width:100%;max-width:1240px;
+  box-shadow:0 40px 80px rgba(0,0,0,.6);
+  overflow:hidden;
+  flex-shrink:0;
+}
+.cmi-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 28px 18px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.cmi-header h2{font-size:15px;font-weight:800;letter-spacing:-.01em;color:var(--text-light);}
+.cmi-close{
+  width:32px;height:32px;border-radius:6px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
+  cursor:pointer;font-size:14px;color:rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.cmi-close:hover{background:rgba(255,255,255,.12);color:var(--text-light);}
+.cmi-body{padding:20px 24px 28px;overflow-x:auto;}
+/* FIXED compare table */
+.cmi-table{
+  width:100%;border-collapse:collapse;font-size:12px;
+  min-width:600px;
+}
+.cmi-table th{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  padding:11px 16px;text-align:left;
+  color:rgba(255,255,255,.6);
+  font-family:'Noto Sans SC',sans-serif;
+  font-size:12px;font-weight:700;
+  min-width:260px;white-space:nowrap;
+}
+.cmi-table th:first-child{min-width:140px;max-width:160px;width:150px;background:rgba(255,255,255,.06);}
+.cmi-table td{
+  border:1px solid rgba(255,255,255,.06);
+  padding:11px 16px;
+  color:var(--muted-light);
+  line-height:1.65;vertical-align:top;
+  min-width:260px;
+  word-break:break-word;white-space:normal;
+}
+.cmi-table td:first-child{
+  min-width:140px;max-width:160px;width:150px;
+  color:var(--text-light);font-weight:700;font-size:11px;
+  background:rgba(255,255,255,.03);
+  white-space:normal;word-break:break-word;
+}
+.cmi-table tr:hover td{background:rgba(255,255,255,.02);}
+
+/* btn utilities */
+.btn{
+  padding:9px 18px;border-radius:5px;
+  font-size:12px;font-weight:700;letter-spacing:.06em;
+  cursor:pointer;transition:all .22s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn-ghost{
+  background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);
+  border:1px solid rgba(255,255,255,.12);
+}
+.btn-ghost:hover{background:rgba(255,255,255,.10);color:var(--text-light);}
+.btn-primary{
+  background:var(--green);color:var(--black);
+  box-shadow:0 0 16px rgba(51,227,111,.25);
+}
+.btn-primary:hover{background:var(--green-soft);box-shadow:0 0 24px rgba(51,227,111,.4);}
+
+/* ══ SEARCH POPUP ══ */
+.search-popup{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.78);
+  align-items:flex-start;justify-content:center;padding:60px 20px;
+}
+.search-popup.open{display:flex;}
+.search-popup-inner{
+  background:#0c0c0c;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  width:100%;max-width:640px;
+  box-shadow:0 32px 72px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+.search-popup-title{
+  font-size:16px;font-weight:800;padding:22px 24px 4px;
+  color:var(--text-light);
+}
+.search-popup-sub{font-size:12px;color:var(--muted-light);padding:0 24px 18px;border-bottom:1px solid rgba(255,255,255,.08);}
+.stage-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding:16px 24px;
+}
+.stage-btn{
+  padding:9px 12px;border-radius:6px;
+  font-size:11px;font-weight:600;letter-spacing:.04em;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.45);cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.stage-btn:hover{color:var(--text-light);border-color:rgba(255,255,255,.2);}
+.stage-btn.active{
+  background:rgba(51,227,111,.12);
+  border-color:rgba(51,227,111,.35);color:rgba(51,183,90,.9);
+}
+#searchQuery{
+  width:100%;resize:vertical;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:6px;padding:12px 14px;
+  font-size:13px;color:var(--text-light);line-height:1.6;
+  margin:0 24px 14px;width:calc(100% - 48px);
+  min-height:80px;
+}
+#searchQuery::placeholder{color:rgba(255,255,255,.28);}
+.search-popup-actions{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 24px 20px;
+}
+#searchResultArea{padding:0 24px 20px;font-size:13px;color:var(--muted-light);line-height:1.8;}
+.popup-chip{
+  padding:5px 12px;border-radius:4px;
+  font-size:10px;font-weight:600;letter-spacing:.06em;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.38);cursor:pointer;transition:all .2s;
+}
+.popup-chip:hover{color:var(--text-light);border-color:rgba(51,227,111,.25);}
+.popup-chip.active{background:rgba(51,227,111,.12);border-color:rgba(51,227,111,.35);color:rgba(51,183,90,.9);}
+.popup-filter-bar{padding:14px 24px;display:flex;flex-wrap:wrap;gap:7px;border-bottom:1px solid rgba(255,255,255,.07);}
+.search-popup-input-wrap{padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.07);}
+.search-popup-input{width:100%;background:transparent;font-size:15px;color:var(--text-light);padding:4px 0;}
+.search-popup-input::placeholder{color:var(--dimmer);}
+.search-result-item{
+  padding:11px 12px;border-radius:8px;cursor:pointer;
+  transition:background .2s;font-size:13px;
+  display:flex;align-items:center;gap:10px;
+}
+.search-result-item:hover{background:rgba(255,255,255,.05);}
+.search-popup-results{max-height:360px;overflow-y:auto;padding:10px;}
+
+/* ══ EXPERIENCE MODAL (FIXED) ══ */
+.exp-modal{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,.8);
+  align-items:center;justify-content:center;
+  padding:40px 20px;
+}
+.exp-modal.open{display:flex;}
+.exp-modal-inner{
+  background:#0d0d0d;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:20px;
+  width:100%;max-width:520px;
+  box-shadow:0 40px 80px rgba(0,0,0,.7);
+  padding:32px;
+  max-height:90vh;overflow-y:auto;
+}
+.exp-modal-inner h3{
+  font-size:16px;font-weight:800;
+  color:var(--text-light);margin-bottom:5px;
+}
+.exp-modal-inner .sub{font-size:12px;color:var(--muted-light);margin-bottom:20px;}
+#expText{
+  width:100%;resize:vertical;min-height:100px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:8px;padding:12px 14px;
+  font-size:13px;color:var(--text-light);line-height:1.65;
+  margin-bottom:14px;
+}
+#expText::placeholder{color:rgba(255,255,255,.28);}
+#expText:focus{border-color:rgba(51,227,111,.4);}
+/* hidden real file input */
+#expImgInput{display:none!important;}
+.img-upload-zone{
+  border:1.5px dashed rgba(255,255,255,.16);
+  border-radius:10px;padding:20px;
+  text-align:center;cursor:pointer;
+  color:rgba(255,255,255,.38);font-size:12px;
+  margin-bottom:12px;
+  transition:border-color .2s,background .2s;
+}
+.img-upload-zone:hover{
+  border-color:rgba(51,227,111,.4);
+  background:rgba(51,227,111,.04);
+  color:rgba(51,183,90,.8);
+}
+.img-upload-zone .upload-icon{
+  font-size:0;width:28px;height:28px;margin:0 auto 8px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,.38)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3E%3Cpolyline points='17 8 12 3 7 8'/%3E%3Cline x1='12' y1='3' x2='12' y2='15'/%3E%3C/svg%3E");
+  background-size:contain;background-repeat:no-repeat;
+}
+.img-upload-zone p{margin:0;line-height:1.6;}
+.img-preview{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.img-preview img{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.10);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;}
+
+/* ══ SCREENSHOT (in detail panel) ══ */
+.screenshot-upload input[type="file"]{display:none!important;}
+.screenshot-upload label{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:5px;
+  font-size:11px;font-weight:700;letter-spacing:.06em;cursor:pointer;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.10);
+  color:rgba(255,255,255,.5);transition:all .2s;
+}
+.screenshot-upload label:hover{border-color:rgba(51,227,111,.35);color:rgba(51,183,90,.8);}
+.screenshot-preview-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.screenshot-preview-grid img{width:64px;height:64px;object-fit:cover;border-radius:5px;border:1px solid rgba(255,255,255,.09);}
+
+/* ══ DROP ZONE ══ */
+#dropZone{
+  position:fixed;bottom:0;left:0;right:0;height:72px;z-index:799;
+  background:linear-gradient(to top,rgba(51,227,111,.08),transparent);
+  border-top:1px solid rgba(51,227,111,.22);
+  display:none;align-items:center;justify-content:center;
+  font-size:11px;color:rgba(51,183,90,.8);letter-spacing:.1em;
+  font-family:'Space Mono',monospace;
+}
+#dropZone.visible{display:flex;}
+#dropZone.drag-over{background:linear-gradient(to top,rgba(51,227,111,.18),transparent);}
+
+/* ══ SEARCH FLOAT ══ */
+.search-float{
+  position:fixed;top:50%;right:18px;transform:translateY(-50%);
+  z-index:800;width:48px;height:48px;border-radius:14px;
+  background:var(--green);
+  border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:0;
+  transition:all .22s;
+  box-shadow:0 0 24px rgba(51,227,111,.4),0 4px 16px rgba(0,0,0,.4);
+}
+.search-float::after{
+  content:'';width:20px;height:20px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23030303' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-size:contain;background-repeat:no-repeat;
+}
+.search-float:hover{transform:translateY(-50%) scale(1.08);box-shadow:0 0 36px rgba(51,227,111,.6),0 4px 20px rgba(0,0,0,.5);}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  nav{padding:0 20px;}
+  #hero{padding:90px 24px 60px;}
+  .hero-big{max-width:100%;}
+  .hero-sphere{
+    width:min(320px,60vw);height:min(320px,60vw);
+    right:0;top:auto;bottom:0;transform:translate(30%,30%);
+    opacity:.6;
+  }
+  .hero-sidenav{display:none;}
+  .hero-stats{position:static;margin-top:24px;flex-wrap:wrap;gap:20px;}
+  .hero-meta-bottom{left:24px;right:24px;}
+  .hero-meta-info{display:none;}
+  .section-wrap{padding:60px 24px;}
+  #search-section{padding:36px 24px;}
+  .detail-panel.open{grid-template-columns:1fr;}
+  .dp-left{border-right:none;border-bottom:1px solid rgba(255,255,255,.08);}
+  .stage-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:600px){
+  .namecard-grid{grid-template-columns:1fr;}
+  .hero-big .h-line1,.hero-big .h-line2{font-size:clamp(52px,13vw,90px);}
+  .sec-nav-tabs,.how-tabs{flex-wrap:wrap;border-radius:8px;padding:4px;}
+  .sec-nav-tab,.how-tab{border-radius:4px;}
+  .stage-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">AI <span>TOOL</span> ATLAS</div>
+  <div class="nav-links">
+    <a href="#understand"><span class="ndot" style="background:var(--cat1)"></span>理解支持型</a>
+    <a href="#generate"><span class="ndot" style="background:var(--cat2)"></span>内容生成型</a>
+    <a href="#decide"><span class="ndot" style="background:var(--cat3)"></span>决策支持型</a>
+    <a href="#collaborate"><span class="ndot" style="background:var(--cat4)"></span>任务协作型</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <!-- green sphere -->
+  <div class="hero-sphere"></div>
+  <!-- side nav -->
+  <div class="hero-sidenav">
+    <a href="#mindmap">framework</a>
+    <a href="#understand">tools</a>
+    <a href="#search-section">search</a>
+    <a href="#decide">matrix</a>
+    <a href="#collaborate">compare</a>
+  </div>
+
+  <div class="hero-label">RESEARCH REPORT · AI INTERACTION DESIGN</div>
+
+  <div class="hero-big">
+    <span class="h-line1">从工具</span>
+    <span class="h-line2">到赋能</span>
+    <span class="h-line3">AI Tools Meet Interaction Design</span>
+  </div>
+
+  <div class="hero-sub-wrap">
+    <div class="hero-sub">面向“交互设计师 AI 工具”的白皮书型网页研究</div>
+    <div class="hero-sub-small">面向交互设计师的 AI 工具全景调研——梳理四类工具的交互模式、Agent 协作机制与行业应用。</div>
+    <div class="hero-btns">
+      <a href="#mindmap" class="hbtn hbtn-primary">查看分类框架</a>
+      <a href="#understand" class="hbtn hbtn-secondary">开始探索工具</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num">+40</span>
+      <span class="hero-stat-label">AI Tools</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">4</span>
+      <span class="hero-stat-label">Categories</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">5</span>
+      <span class="hero-stat-label">Design Stages</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">∞</span>
+      <span class="hero-stat-label">Agent Logic</span>
+    </div>
+  </div>
+
+  <div class="hero-meta-bottom">
+    <div class="hero-scroll">向下探索</div>
+    <div class="hero-meta-info">
+      王美婷 曾好 王雨堃 刘静瑜<br>
+      2026.04 · AI Interaction Research
+    </div>
+  </div>
+</section>
+
+<!-- MINDMAP -->
+<section id="mindmap" class="section-wrap sec-light">
+  <div class="sec-num">00 — 分类框架</div>
+  <span class="sec-eyebrow">CATEGORY FRAMEWORK</span>
+  <div class="sec-title">为什么把 AI 工具分为这四类？</div>
+  <div class="sec-desc">从用户意图与工具核心价值出发——终点是理解？创造？选择？还是执行？</div>
+  <div class="mindmap-glass">
+  <div class="mindmap-wrap">
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+  <defs>
+    <style>
+      .grid-line{stroke:rgba(0,0,0,.08);stroke-width:1;}
+      .node{transition:transform .2s;}
+      .node:hover{transform:scale(1.1);}
+      .node-label{font-family:'Noto Sans SC',sans-serif;font-size:11px;font-weight:600;fill:#333;}
+      .node-num{font-family:'Space Mono',monospace;font-size:9px;fill:#666;}
+      .connect-line{stroke:#999;stroke-width:2;fill:none;stroke-linecap:round;}
+    </style>
+  </defs>
+  
+  <!-- Grid -->
+  <g opacity="0.3">
+    <line class="grid-line" x1="100" y1="50" x2="100" y2="550"/>
+    <line class="grid-line" x1="200" y1="50" x2="200" y2="550"/>
+    <line class="grid-line" x1="300" y1="50" x2="300" y2="550"/>
+    <line class="grid-line" x1="400" y1="50" x2="400" y2="550"/>
+    <line class="grid-line" x1="500" y1="50" x2="500" y2="550"/>
+    <line class="grid-line" x1="600" y1="50" x2="600" y2="550"/>
+    <line class="grid-line" x1="700" y1="50" x2="700" y2="550"/>
+    <line class="grid-line" x1="50" y1="100" x2="750" y2="100"/>
+    <line class="grid-line" x1="50" y1="200" x2="750" y2="200"/>
+    <line class="grid-line" x1="50" y1="300" x2="750" y2="300"/>
+    <line class="grid-line" x1="50" y1="400" x2="750" y2="400"/>
+    <line class="grid-line" x1="50" y1="500" x2="750" y2="500"/>
+  </g>
+  
+  <!-- Connection lines -->
+  <path class="connect-line" d="M 300,150 L 400,250 L 500,200 L 650,280"/>
+  <path class="connect-line" d="M 200,350 L 300,300 L 400,350"/>
+  <path class="connect-line" d="M 500,400 L 600,450"/>
+  
+  <!-- Nodes -->
+  <!-- 理解支持型 (Blue) -->
+  <g class="node">
+    <circle cx="300" cy="150" r="45" fill="rgba(51,108,255,.25)" stroke="rgba(51,108,255,.6)" stroke-width="3"/>
+    <text x="300" y="145" text-anchor="middle" class="node-label">理解支持型</text>
+    <text x="300" y="160" text-anchor="middle" class="node-num">UNDERSTAND</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="200" cy="350" r="35" fill="rgba(51,108,255,.2)" stroke="rgba(51,108,255,.5)" stroke-width="2"/>
+    <text x="200" y="355" text-anchor="middle" style="font-size:10px;fill:#336cff;">分析洞察</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="650" cy="450" r="30" fill="rgba(51,108,255,.15)" stroke="rgba(51,108,255,.4)" stroke-width="2"/>
+    <text x="650" y="455" text-anchor="middle" style="font-size:9px;fill:#336cff;">知识问答</text>
+  </g>
+  
+  <!-- 内容生成型 (Green) -->
+  <g class="node">
+    <circle cx="500" cy="200" r="50" fill="rgba(51,227,111,.25)" stroke="rgba(51,227,111,.6)" stroke-width="3"/>
+    <text x="500" y="195" text-anchor="middle" class="node-label">内容生成型</text>
+    <text x="500" y="210" text-anchor="middle" class="node-num">GENERATE</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="400" cy="350" r="35" fill="rgba(51,227,111,.2)" stroke="rgba(51,227,111,.5)" stroke-width="2"/>
+    <text x="400" y="355" text-anchor="middle" style="font-size:10px;fill:#33b35a;">文本/代码</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="600" cy="300" r="30" fill="rgba(51,227,111,.15)" stroke="rgba(51,227,111,.4)" stroke-width="2"/>
+    <text x="600" y="305" text-anchor="middle" style="font-size:9px;fill:#33b35a;">图像/视频</text>
+  </g>
+  
+  <!-- 决策辅助型 (Pink) -->
+  <g class="node">
+    <circle cx="400" cy="250" r="45" fill="rgba(255,105,180,.25)" stroke="rgba(255,105,180,.6)" stroke-width="3"/>
+    <text x="400" y="245" text-anchor="middle" class="node-label">决策辅助型</text>
+    <text x="400" y="260" text-anchor="middle" class="node-num">DECIDE</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="300" cy="300" r="30" fill="rgba(255,105,180,.2)" stroke="rgba(255,105,180,.5)" stroke-width="2"/>
+    <text x="300" y="305" text-anchor="middle" style="font-size:9px;fill:#ff69b4;">推荐优选</text>
+  </g>
+  
+  <!-- 任务协作型 (Orange) -->
+  <g class="node">
+    <circle cx="650" cy="280" r="50" fill="rgba(232,102,42,.25)" stroke="rgba(232,102,42,.6)" stroke-width="3"/>
+    <text x="650" y="275" text-anchor="middle" class="node-label">任务协作型</text>
+    <text x="650" y="290" text-anchor="middle" class="node-num">COLLABORATE</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="500" cy="400" r="35" fill="rgba(232,102,42,.2)" stroke="rgba(232,102,42,.5)" stroke-width="2"/>
+    <text x="500" y="405" text-anchor="middle" style="font-size:10px;fill:#e8662a;">流程自动化</text>
+  </g>
+  
+  <g class="node">
+    <circle cx="600" cy="450" r="30" fill="rgba(232,102,42,.15)" stroke="rgba(232,102,42,.4)" stroke-width="2"/>
+    <text x="600" y="455" text-anchor="middle" style="font-size:9px;fill:#e8662a;">项目管理</text>
+  </g>
+  
+  <!-- Center concept -->
+  <g class="node">
+    <circle cx="400" cy="380" r="25" fill="rgba(0,0,0,.8)" stroke="rgba(255,255,255,.3)" stroke-width="2"/>
+    <text x="400" y="385" text-anchor="middle" style="font-size:10px;fill:#fff;font-weight:700;">AI工具</text>
+  </g>
+</svg>
+  </div>
+  </div>
+</section>
+
+<!-- SEARCH SECTION -->
+<div id="search-section">
+  <div class="search-bar-wrap">
+    <input type="text" class="search-bar" id="searchBar" placeholder="我现在在做竞品分析，哪款AI工具最适合我？" readonly onclick="openSearch()">
+    <button class="search-icon-btn" onclick="openSearch()" aria-label="搜索"></button>
+  </div>
+</div>
+
+<!-- UNDERSTAND SECTION -->
+<section id="understand" class="section-wrap sec-dark">
+  <div class="sec-num">01 — 理解支持型</div>
+  <span class="sec-eyebrow">UNDERSTAND</span>
+  <div class="sec-title">帮人「看懂」已有信息</div>
+  <div class="sec-desc">以已有信息为输入，以用户形成认知为终点。工具的核心价值在于降低人理解信息的成本，而非驱动后续的生成、执行或决策。</div>
+  <!-- SECTION NAV TABS -->
+  <div class="sec-nav-tabs">
+    <div class="sec-nav-tab active" onclick="switchSecPane(this,'sec-pane-tools')">是什么</div>
+    <div class="sec-nav-tab" onclick="switchSecPane(this,'sec-pane-how')">怎么工作</div>
+    <div class="sec-nav-tab" onclick="switchSecPane(this,'sec-pane-scene')">在什么场景下工作</div>
+  </div>
+
+  <!-- PANE: 是什么 -->
+  <div class="sec-pane active" id="sec-pane-tools">
+    <div id="u-tool-area"></div>
+  </div>
+
+  <!-- PANE: 怎么工作 -->
+  <div class="sec-pane" id="sec-pane-how">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">怎么工作</div>
+    <div class="how-section-sub">以横向对比的形式，展示本类全部 AI 工具的工作形式与 Agent 机制</div>
+    <div class="how-tabs">
+      <div class="how-tab active" onclick="switchHowTab(this,'u-how-flow')">Agent 协作流程</div>
+      <div class="how-tab" onclick="switchHowTab(this,'u-how-steps')">人机协作步骤对比</div>
+      <div class="how-tab" onclick="switchHowTab(this,'u-how-table')">交互逻辑横向对比</div>
+    </div>
+    <div id="u-how-flow">
+      <div class="agent-flow-wrap">
+        <div class="af-node highlight">信息获取 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">语义理解 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">归纳整合 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node highlight">输出格式 Agent</div>
+      </div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.8;max-width:640px;margin-top:16px">理解支持型工具普遍采用<strong style="color:var(--text)">串行 Agent 链路</strong>：信息获取 Agent 负责检索或解析输入内容，理解 Agent 负责语义归纳，输出 Agent 负责格式化呈现。Perplexity 等工具的 Agent 链路对用户完全透明（可见搜索中状态），而 NotebookLM 的 Agent 则在私有知识库边界内并行工作。</p>
+    </div>
+    <div id="u-how-steps" style="display:none">
+      <!-- collab timeline -->
+      <div class="collab-section">
+        <div class="ct-legend">
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-human"></div>人执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-ai"></div>AI执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-both"></div>人+AI协作</div>
+        </div>
+        <div class="collab-timeline" id="u-collab-timeline"></div>
+      </div>
+    </div>
+    <div id="u-how-table" style="display:none">
+      <div class="comp-scroll">
+        <table class="comp-table">
+          <thead><tr>
+            <th>工具</th><th>触发方式</th><th>核心 Agent 机制</th><th>输出形态</th><th>输出可操作性</th><th>交互创新点</th>
+          </tr></thead>
+          <tbody id="u-how-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div><!-- /sec-pane-how -->
+
+  <!-- PANE: 在什么场景下工作 -->
+  <div class="sec-pane" id="sec-pane-scene">
+  <!-- SCENE / MATRIX -->
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">在什么场景下工作</div>
+    <div class="how-section-sub">任务适配矩阵——评估本类工具在交互设计师不同工作阶段的适配程度</div>
+    <div class="mx-header-row">
+      <div></div>
+      <div class="mx-header-cell">用户研究</div>
+      <div class="mx-header-cell">原型设计</div>
+      <div class="mx-header-cell">竞品分析</div>
+      <div class="mx-header-cell">可用性测试</div>
+      <div class="mx-header-cell">迭代优化</div>
+    </div>
+    <div class="matrix-grid" id="u-matrix"></div>
+  </div>
+  <!-- RADAR -->
+  <div class="how-section" style="margin-top:48px">
+    <div class="how-section-title">五维雷达图</div>
+    <div class="how-section-sub">交互创新度 · 输出可操作性 · Agent协作复杂度 · 上下文感知能力 · 用户门槛（越低越难上手）</div>
+    <div class="radar-grid" id="u-radar-grid"></div>
+  </div><!-- /radar how-section -->
+  </div><!-- /sec-pane-scene -->
+</section>
+
+<!-- GENERATE SECTION -->
+<section id="generate" class="section-wrap sec-light">
+  <div class="sec-num">02 — 内容生成型</div>
+  <span class="sec-eyebrow">GENERATE</span>
+  <div class="sec-title">帮人「创造」新内容</div>
+  <div class="sec-desc">以用户的意图或描述为输入，生成原本不存在的内容——文字、图像、视频或音乐。</div>
+  <!-- SECTION NAV TABS -->
+  <div class="sec-nav-tabs">
+    <div class="sec-nav-tab active" onclick="switchGenSecPane(this,'g-sec-pane-tools')">是什么</div>
+    <div class="sec-nav-tab" onclick="switchGenSecPane(this,'g-sec-pane-how')">怎么工作</div>
+    <div class="sec-nav-tab" onclick="switchGenSecPane(this,'g-sec-pane-scene')">在什么场景下工作</div>
+  </div>
+
+  <!-- PANE: 是什么 -->
+  <div class="sec-pane active" id="g-sec-pane-tools">
+    <div id="g-tool-area"></div>
+  </div>
+
+  <!-- PANE: 怎么工作 -->
+  <div class="sec-pane" id="g-sec-pane-how">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">怎么工作</div>
+    <div class="how-section-sub">以横向对比的形式，展示本类全部 AI 工具的工作形式与 Agent 机制</div>
+    <div class="how-tabs">
+      <div class="how-tab active" onclick="switchGenHowTab(this,'g-how-flow')">Agent 协作流程</div>
+      <div class="how-tab" onclick="switchGenHowTab(this,'g-how-steps')">人机协作步骤对比</div>
+      <div class="how-tab" onclick="switchGenHowTab(this,'g-how-table')">交互逻辑横向对比</div>
+    </div>
+    <div id="g-how-flow">
+      <div class="agent-flow-wrap">
+        <div class="af-node highlight">意图解析 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">内容生成 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">质量评估 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node highlight">输出渲染 Agent</div>
+      </div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.8;max-width:640px;margin-top:16px">内容生成型工具普遍采用<strong style="color:var(--text)">生成模型 + 控制层</strong>的链路：意图解析 Agent 将用户输入转化为模型可用的 Prompt/参数，内容生成 Agent 执行核心生成（LLM / 扩散模型 / 音频模型），质量评估 Agent 负责一致性与风格校准，输出渲染 Agent 将结果呈现为可直接操作的形态（文档/图层/代码/视频文件）。文本类以 LLM 串行为主，图像/视频/音频类以扩散模型为核心，辅以 ControlNet、LoRA 等精细控制插件。</p>
+    </div>
+    <div id="g-how-steps" style="display:none">
+      <div class="collab-section">
+        <div class="ct-legend">
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-human"></div>人执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-ai"></div>AI执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-both"></div>人+AI协作</div>
+        </div>
+        <div class="collab-timeline" id="g-collab-timeline"></div>
+      </div>
+    </div>
+    <div id="g-how-table" style="display:none">
+      <div class="comp-scroll">
+        <table class="comp-table">
+          <thead><tr>
+            <th>工具</th><th>触发方式</th><th>核心 Agent 机制</th><th>输出形态</th><th>输出可操作性</th><th>交互创新点</th>
+          </tr></thead>
+          <tbody id="g-how-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div><!-- /g-sec-pane-how -->
+
+  <!-- PANE: 在什么场景下工作 -->
+  <div class="sec-pane" id="g-sec-pane-scene">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">在什么场景下工作</div>
+    <div class="how-section-sub">任务适配矩阵——评估本类工具在交互设计师不同工作阶段的适配程度</div>
+    <div class="mx-header-row">
+      <div></div>
+      <div class="mx-header-cell">用户研究</div>
+      <div class="mx-header-cell">原型设计</div>
+      <div class="mx-header-cell">竞品分析</div>
+      <div class="mx-header-cell">可用性测试</div>
+      <div class="mx-header-cell">迭代优化</div>
+    </div>
+    <div class="matrix-grid" id="g-matrix"></div>
+  </div>
+  <!-- RADAR -->
+  <div class="how-section" style="margin-top:48px">
+    <div class="how-section-title">五维雷达图</div>
+    <div class="how-section-sub">交互创新度 · 输出可操作性 · Agent协作复杂度 · 上下文感知能力 · 用户门槛（越低越难上手）</div>
+    <div class="radar-grid" id="g-radar-grid"></div>
+  </div>
+  </div><!-- /g-sec-pane-scene -->
+</section>
+
+<!-- DECIDE SECTION -->
+<section id="decide" class="section-wrap sec-dark">
+  <div class="sec-num">03 — 决策支持型</div>
+  <span class="sec-eyebrow">DECIDE</span>
+  <div class="sec-title">帮人「做更好的决定」</div>
+  <div class="sec-desc">以数据与选项为输入，帮助用户在复杂情境下做出更准确、更有依据的判断与选择。</div>
+
+  <!-- SECTION NAV TABS -->
+  <div class="sec-nav-tabs">
+    <div class="sec-nav-tab active" onclick="switchDecideSecPane(this,'d-sec-pane-tools')">是什么</div>
+    <div class="sec-nav-tab" onclick="switchDecideSecPane(this,'d-sec-pane-how')">怎么工作</div>
+    <div class="sec-nav-tab" onclick="switchDecideSecPane(this,'d-sec-pane-scene')">在什么场景下工作</div>
+  </div>
+
+  <!-- PANE: 是什么 -->
+  <div class="sec-pane active" id="d-sec-pane-tools">
+    <div id="d-tool-area"></div>
+  </div>
+
+  <!-- PANE: 怎么工作 -->
+  <div class="sec-pane" id="d-sec-pane-how">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">怎么工作</div>
+    <div class="how-section-sub">以横向对比的形式，展示本类全部 AI 工具的工作形式与 Agent 机制</div>
+    <div class="how-tabs">
+      <div class="how-tab active" onclick="switchDecideHowTab(this,'d-how-flow')">Agent 协作流程</div>
+      <div class="how-tab" onclick="switchDecideHowTab(this,'d-how-steps')">人机协作步骤对比</div>
+      <div class="how-tab" onclick="switchDecideHowTab(this,'d-how-table')">交互逻辑横向对比</div>
+    </div>
+    <div id="d-how-flow">
+      <div class="agent-flow-wrap">
+        <div class="af-node highlight">数据采集 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">特征分析 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">预测评估 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node highlight">决策输出 Agent</div>
+      </div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.8;max-width:640px;margin-top:16px">决策支持型工具的核心链路是<strong style="color:var(--text)">数据驱动 → 模型预测 → 策略输出</strong>：数据采集 Agent 持续收集用户行为或业务指标，特征分析 Agent 进行画像建模与模式识别，预测评估 Agent 输出概率/风险/排序结果，决策输出 Agent 将结论转化为可执行的策略建议或自动化行为。推荐与排序类以协同过滤与 embedding 匹配为核心；预测评估类以 ML 建模为主；自动决策类则在输出端直接闭环执行，人工介入程度最低。</p>
+    </div>
+    <div id="d-how-steps" style="display:none">
+      <div class="collab-section">
+        <div class="ct-legend">
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-human"></div>人执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-ai"></div>AI执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-both"></div>人+AI协作</div>
+        </div>
+        <div class="collab-timeline" id="d-collab-timeline"></div>
+      </div>
+    </div>
+    <div id="d-how-table" style="display:none">
+      <div class="comp-scroll">
+        <table class="comp-table">
+          <thead><tr>
+            <th>工具</th><th>触发方式</th><th>核心 Agent 机制</th><th>输出形态</th><th>输出可操作性</th><th>交互创新点</th>
+          </tr></thead>
+          <tbody id="d-how-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div><!-- /d-sec-pane-how -->
+
+  <!-- PANE: 在什么场景下工作 -->
+  <div class="sec-pane" id="d-sec-pane-scene">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">在什么场景下工作</div>
+    <div class="how-section-sub">任务适配矩阵——评估本类工具在交互设计师不同工作阶段的适配程度</div>
+    <div class="mx-header-row">
+      <div></div>
+      <div class="mx-header-cell">用户研究</div>
+      <div class="mx-header-cell">原型设计</div>
+      <div class="mx-header-cell">竞品分析</div>
+      <div class="mx-header-cell">可用性测试</div>
+      <div class="mx-header-cell">迭代优化</div>
+    </div>
+    <div class="matrix-grid" id="d-matrix"></div>
+  </div>
+  <!-- RADAR -->
+  <div class="how-section" style="margin-top:48px">
+    <div class="how-section-title">五维雷达图</div>
+    <div class="how-section-sub">交互创新度 · 输出可操作性 · Agent协作复杂度 · 上下文感知能力 · 用户门槛（越低越难上手）</div>
+    <div class="radar-grid" id="d-radar-grid"></div>
+  </div>
+  </div><!-- /d-sec-pane-scene -->
+</section>
+
+<!-- COLLABORATE SECTION -->
+<section id="collaborate" class="section-wrap sec-light">
+  <div class="sec-num">04 — 任务协作型</div>
+  <span class="sec-eyebrow">COLLABORATE</span>
+  <div class="sec-title">帮人「推进任务执行」</div>
+  <div class="sec-desc">智能体直接嵌在任务、项目、文档、消息流和团队协作空间里工作，更像"进入团队流程中的协作成员"。</div>
+
+  <div class="sec-nav-tabs">
+    <div class="sec-nav-tab active" onclick="switchCollabSecPane(this,'c-sec-pane-tools')">是什么</div>
+    <div class="sec-nav-tab" onclick="switchCollabSecPane(this,'c-sec-pane-how')">怎么工作</div>
+    <div class="sec-nav-tab" onclick="switchCollabSecPane(this,'c-sec-pane-scene')">在什么场景下工作</div>
+  </div>
+
+  <div class="sec-pane active" id="c-sec-pane-tools">
+    <div id="c-tool-area"></div>
+  </div>
+
+  <div class="sec-pane" id="c-sec-pane-how">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">怎么工作</div>
+    <div class="how-section-sub">以横向对比的形式，展示本类全部 AI 工具的工作形式与 Agent 机制</div>
+    <div class="how-tabs">
+      <div class="how-tab active" onclick="switchCollabHowTab(this,'c-how-flow')">Agent 协作流程</div>
+      <div class="how-tab" onclick="switchCollabHowTab(this,'c-how-steps')">人机协作步骤对比</div>
+      <div class="how-tab" onclick="switchCollabHowTab(this,'c-how-table')">交互逻辑横向对比</div>
+    </div>
+    <div id="c-how-flow">
+      <div class="agent-flow-wrap">
+        <div class="af-node highlight">上下文读取 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">任务拆解 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node">执行调度 Agent</div>
+        <div class="af-arrow"></div>
+        <div class="af-node highlight">状态回写 Agent</div>
+      </div>
+      <p style="font-size:13px;color:var(--dim);line-height:1.8;max-width:640px;margin-top:16px">任务协作型工具的核心链路是<strong style="color:var(--text)">嵌入上下文 → 理解任务 → 执行推进 → 状态沉淀</strong>：上下文读取 Agent 持续感知项目状态、成员分工与文档内容，任务拆解 Agent 将目标分解为可执行步骤，执行调度 Agent 跨工具触发动作或分发提醒，状态回写 Agent 将结果同步回协作空间。项目/工作管理类以嵌入协作平台为核心；自动化编排类以跨系统连接和事件触发为重点；企业流程类深耕部门业务上下文；专业代理类则承担更长链路的自主执行任务。</p>
+    </div>
+    <div id="c-how-steps" style="display:none">
+      <div class="collab-section">
+        <div class="ct-legend">
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-human"></div>人执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-ai"></div>AI执行</div>
+          <div class="ct-legend-item"><div class="ct-legend-dot ct-both"></div>人+AI协作</div>
+        </div>
+        <div class="collab-timeline" id="c-collab-timeline"></div>
+      </div>
+    </div>
+    <div id="c-how-table" style="display:none">
+      <div class="comp-scroll">
+        <table class="comp-table">
+          <thead><tr>
+            <th>工具</th><th>触发方式</th><th>核心 Agent 机制</th><th>输出形态</th><th>输出可操作性</th><th>交互创新点</th>
+          </tr></thead>
+          <tbody id="c-how-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="sec-pane" id="c-sec-pane-scene">
+  <div class="how-section" style="margin-top:0;padding-top:0;border-top:none;">
+    <div class="how-section-title">在什么场景下工作</div>
+    <div class="how-section-sub">任务适配矩阵——评估本类工具在交互设计师不同工作阶段的适配程度</div>
+    <div class="mx-header-row">
+      <div></div>
+      <div class="mx-header-cell">用户研究</div>
+      <div class="mx-header-cell">原型设计</div>
+      <div class="mx-header-cell">竞品分析</div>
+      <div class="mx-header-cell">可用性测试</div>
+      <div class="mx-header-cell">迭代优化</div>
+    </div>
+    <div class="matrix-grid" id="c-matrix"></div>
+  </div>
+  <div class="how-section" style="margin-top:48px">
+    <div class="how-section-title">五维雷达图</div>
+    <div class="how-section-sub">交互创新度 · 输出可操作性 · Agent协作复杂度 · 上下文感知能力 · 用户门槛（越低越难上手）</div>
+    <div class="radar-grid" id="c-radar-grid"></div>
+  </div>
+  </div>
+</section>
+
+<!-- FLOATING SEARCH ICON -->
+<div class="search-float" id="searchFloat" onclick="openSearch()" aria-label="搜索"></div>
+
+<!-- COMPARE DOCK -->
+<div class="compare-dock">
+  <div class="compare-doc-icon" id="compareIcon" onclick="openCompareModal()" title="点击查看对比">
+    📋
+    <span class="compare-count" id="compareCount" style="display:none">0</span>
+  </div>
+</div>
+
+<!-- DROP ZONE -->
+<div class="drop-zone" id="dropZone">
+  <div class="drop-zone-inner">拖入对比</div>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="compare-modal" id="compareModal">
+  <div class="compare-modal-inner cmi-inner">
+    <div class="cmi-header">
+      <h2>工具横向对比</h2>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-ghost" onclick="clearCompare()">清空</button>
+        <button class="cmi-close" onclick="closeCompareModal()">✕</button>
+      </div>
+    </div>
+    <div class="cmi-body">
+      <div id="compareTableWrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH POPUP -->
+<div class="search-popup" id="searchPopup">
+  <div class="search-popup-inner">
+    <div class="search-popup-title">AI 工具智能推荐</div>
+    <div class="search-popup-sub">选择你目前的设计阶段，或直接输入你的问题</div>
+    <div class="stage-grid">
+      <div class="stage-btn" onclick="toggleStage(this,'用户研究')">用户研究阶段</div>
+      <div class="stage-btn" onclick="toggleStage(this,'原型设计')">原型设计阶段</div>
+      <div class="stage-btn" onclick="toggleStage(this,'竞品分析')">竞品分析阶段</div>
+      <div class="stage-btn" onclick="toggleStage(this,'可用性测试')">可用性测试阶段</div>
+      <div class="stage-btn" onclick="toggleStage(this,'迭代优化')">迭代优化阶段</div>
+      <div class="stage-btn" onclick="toggleStage(this,'文档整理')">文档整理/知识管理</div>
+    </div>
+    <textarea id="searchQuery" placeholder="或直接输入你的问题，例如：我要分析一批用户访谈录音，哪个工具最合适？"></textarea>
+    <div class="search-popup-actions">
+      <button class="btn btn-ghost" onclick="closeSearch()">取消</button>
+      <button class="btn btn-primary" onclick="doSearch()">AI 推荐</button>
+    </div>
+    <div id="searchResultArea"></div>
+  </div>
+</div>
+
+<!-- EXPERIENCE MODAL -->
+<div class="exp-modal" id="expModal">
+  <div class="exp-modal-inner">
+    <h3 id="expModalTitle">上传使用体验</h3>
+    <p class="sub" id="expModalSub">记录你使用这个工具的真实感受</p>
+    <textarea id="expText" placeholder="写下你的使用体验、感受或发现……"></textarea>
+    <input type="file" accept="image/*" multiple id="expImgInput" style="display:none!important">
+    <div class="img-upload-zone" onclick="document.getElementById('expImgInput').click()">
+      <div class="upload-icon"></div>
+      <p>点击上传截图，支持多张图片</p>
+    </div>
+    <div class="img-preview" id="expImgPreview"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeExpModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveExp()">保存体验</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════
+const TOOLS = [
+  {id:'perplexity',name:'Perplexity AI',domain:'perplexity.ai',emoji:'🔍',subcat:'搜索问答型',cat:'理解支持型',tested:'已测试',
+   tagline:'实时联网引用 · 来源透明可溯 · 研究链式追问',
+   what:'AI 原生搜索引擎，实时检索网页内容并生成带引用来源的综合回答，支持追问和多轮对话。',
+   howFlow:'意图理解→并行搜索→内容抓取→归纳生成→引用验证',
+   howType:'对话线性型 结构化输出型',
+   howMechanism:'多 Agent 并行执行，链路最透明。支持不同模型切换讨论同一问题。',
+   howTrigger:'被动响应（文字输入）',
+   howOutput:'结构化文字+引用角标',
+   howOperable:'可追问，引用可点击跳转',
+   howInnovation:'来源引用气泡 + 研究链式追问',
+   steps:[
+     {actor:'人',text:'输入自然语言问题，表达研究意图'},
+     {actor:'AI',text:'实时联网搜索多个来源，过程对用户透明（可见搜索中状态）'},
+     {actor:'AI',text:'生成综合摘要，附来源角标，每个论点对应可点击原始来源'},
+     {actor:'人',text:'判断哪个来源值得深挖，通过来源角标跳转原文'},
+     {actor:'人',text:'基于摘要发现知识缺口，进一步追问细化方向'},
+     {actor:'AI',text:'在同一对话中延续上下文回答，AI保留对话记忆'}
+   ],
+   scene:'行业背景：学术研究、新闻资讯、商业竞调。\n设计师场景：竞品调研、快速了解陌生设计领域概念、查找设计决策的外部依据。\n局限：实时信息为主，深度分析能力有限。',
+   tags:['搜索问答','引用溯源','多轮对话'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:2,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'强适配','可用性测试':'弱适配','迭代优化':'弱适配'}},
+
+  {id:'copilot',name:'Copilot',domain:'copilot.microsoft.com',emoji:'🪟',subcat:'搜索问答型',cat:'理解支持型',tested:'已测试',
+   tagline:'Office生态深度嵌入 · 输出即工作文件 · 跨应用上下文感知',
+   what:'微软生态 AI 搜索助手，深度整合 Office 生态，可调用企业内部数据，在 Word/PPT 中以侧边栏嵌入，感知当前文档内容主动提供建议。',
+   howFlow:'搜索 Agent→Office 数据 Agent→归纳生成→来源标注',
+   howType:'对话线性型 上下文感知型',
+   howMechanism:'企业版支持跨应用调取Teams会议纪要、Outlook邮件、SharePoint文件，形成跨应用信息链路。',
+   howTrigger:'被动响应（嵌入文档侧边栏）',
+   howOutput:'文档内嵌式结构化内容',
+   howOperable:'一键插入/保留到工作文件，可操作性最强',
+   howInnovation:'Office内原位调用，输出直接成为文档内容',
+   steps:[
+     {actor:'人',text:'在Word中打开Copilot侧边栏，在已有工作环境中唤醒AI，无需切换应用'},
+     {actor:'人',text:'粘贴或上传访谈文字稿，提供原始材料'},
+     {actor:'人',text:'输入指令「提炼用户核心痛点并分类」，通过自然语言下达结构化任务'},
+     {actor:'AI',text:'生成结构化摘要，直接出现在文档中，输出直接嵌入Word，可立即编辑'},
+     {actor:'人',text:'审核、修改、补充，对AI输出进行专业判断和润色'},
+     {actor:'人+AI',text:'继续用Copilot生成对应PPT汇报，Word内容一键转为PPT大纲，跨应用无缝衔接'}
+   ],
+   scene:'行业背景：企业协作、生产力工具领域。\n设计师场景：在PPT中查找相关设计数据、从企业内部文档中检索设计规范。\n局限：强依赖微软生态，非微软环境用户体验大幅下降。',
+   tags:['微软生态','Office集成','上下文感知'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'弱适配','迭代优化':'中等适配'}},
+
+  {id:'youcom',name:'You.com',domain:'you.com',emoji:'🔮',subcat:'搜索问答型',cat:'理解支持型',tested:'已测试',
+   tagline:'多模型一键切换 · 实时联网搜索 · 模式灵活可配置',
+   what:'可自定义模式的 AI 搜索平台，支持研究/代码/聊天等模式切换，同一输入在不同模式下产出完全不同形态的结果。',
+   howFlow:'模式识别→专项搜索 Agent→模式化输出',
+   howType:'对话线性型',
+   howMechanism:'「模式切换 Agent」——根据任务类型分配不同的后端 Agent 组合，同一输入在不同模式下产出完全不同形态的结果。',
+   howTrigger:'被动响应（支持模式主动切换）',
+   howOutput:'根据模式不同而变化',
+   howOperable:'可继续追问，支持引用来源',
+   howInnovation:'同界面切换GPT/Claude/Gemini等不同AI模型',
+   steps:[
+     {actor:'人',text:'输入竞品对比问题，发起搜索意图'},
+     {actor:'人',text:'选择搜索模式（研究模式/创意模式），主动控制AI的工作方向'},
+     {actor:'AI',text:'联网搜索并生成对比摘要，整合多个来源，结构化呈现'},
+     {actor:'人',text:'对某个竞品追问细节，根据摘要判断哪里需要深挖'},
+     {actor:'人',text:'切换到更强的AI模型重新分析，相当于换一个专家视角验证结论'},
+     {actor:'人',text:'导出或复制结论到设计文档，手动搬运，暂无自动集成'}
+   ],
+   scene:'行业背景：通用知识工作、软件开发。\n设计师场景：同一个设计问题，用「研究模式」找文献依据、用「代码模式」找实现参考。\n局限：模式之间切换需要用户主动操作，上下文不连贯。',
+   tags:['模式切换','多模型','自定义'],
+   radar:{交互创新度:3,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'弱适配'}},
+
+  {id:'notebooklm',name:'NotebookLM',domain:'notebooklm.google.com',emoji:'📔',subcat:'文档分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'多文档跨源问答 · 引用精确可溯源 · 播客形式知识输出',
+   what:'Google 出品的私有知识库 AI，以用户上传的文档为私有知识库，支持多文档交叉引用问答与摘要生成，独特 Audio Overview 功能可生成播客。',
+   howFlow:'文档解析→知识图谱构建→跨文档问答→来源定位',
+   howType:'结构化输出型',
+   howMechanism:'多个 Agent 共享同一私有知识库上下文。回答时自动标注来源于哪份文档的哪段内容。可生成多种知识工具（时间轴、学习指南、FAQ 等）。',
+   howTrigger:'被动响应 + 主动生成（Audio Overview）',
+   howOutput:'文字摘要+音频播客+知识工具',
+   howOperable:'引用可跳转原文，可追问，可操作性强',
+   howInnovation:'Audio Overview双人播客生成，突破文字输出范式',
+   steps:[
+     {actor:'人',text:'创建新笔记本，上传5份访谈PDF，构建知识边界，决定AI能「看到」什么'},
+     {actor:'AI',text:'自动生成所有文档的综合摘要，上传后自动触发，无需额外指令'},
+     {actor:'人',text:'提问「受访者对现有工具最不满意的地方是什么」，引导AI的分析方向'},
+     {actor:'AI',text:'基于5份文档综合回答，并标注每个观点来自哪份文档第几页，引用可点击跳转原文'},
+     {actor:'人',text:'继续追问，逐步收敛到设计机会点，多轮对话，人主导分析深度'},
+     {actor:'AI',text:'生成Audio Overview——双人播客形式总结，可将研究内容转为音频摘要，方便团队分享'}
+   ],
+   scene:'行业背景：学术研究、法律文书分析、商业报告解读。\n设计师场景：上传用户访谈录音转写稿+竞品分析报告，跨文档提炼设计洞察。\n局限：仅限上传内容范围，无法联网补充。',
+   tags:['文档分析','知识库','交叉引用'],
+   radar:{交互创新度:5,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:5,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'中等适配'}},
+
+  {id:'elicit',name:'Elicit',domain:'elicit.com',emoji:'📚',subcat:'文档分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'学术文献自动结构化提取 · 研究问题驱动检索 · 自定义字段可扩展',
+   what:'学术文献专项分析工具，能跨多篇论文提取特定字段，横向对比研究结论，辅助文献综述。',
+   howFlow:'文献搜索→摘要提取→数据列提取→跨文献比较',
+   howType:'结构化输出型',
+   howMechanism:'核心是「数据列提取 Agent」——可以自定义要从每篇文献中提取哪些字段，AI 自动跨文档填充，生成可筛选的结构化表格。',
+   howTrigger:'被动响应（研究问题输入）',
+   howOutput:'可导出CSV的结构化对比表格',
+   howOperable:'可导出CSV，支持自定义提取字段',
+   howInnovation:'研究问题驱动的文献提取框架，人决定维度，AI执行填充',
+   steps:[
+     {actor:'人',text:'在Elicit输入研究问题，用自然语言表达研究意图，这是整个工作流的出发点'},
+     {actor:'AI',text:'搜索数百篇相关论文并按相关度排序，自动检索Semantic Scholar数据库'},
+     {actor:'AI',text:'自动提取每篇论文的摘要、方法、样本、结论，以表格形式呈现，不需要逐篇阅读'},
+     {actor:'人',text:'自定义新的提取列（如「是否涉及视觉障碍」），AI随即补充数据'},
+     {actor:'人',text:'筛选高度相关论文，标记为精读，做质量判断，AI只负责量的处理'},
+     {actor:'人',text:'导出CSV表格，整合进研究报告，结构化输出可直接复用，无需二次整理'}
+   ],
+   scene:'行业背景：学术研究、医疗研究、政策分析。\n设计师场景：对比多篇设计研究文献的结论、从研究中提取支持设计决策的数据依据。\n局限：专注学术场景，非学术文档处理能力弱。',
+   tags:['学术文献','字段提取','横向对比'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:3,用户门槛:3},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'弱适配'}},
+
+  {id:'askyourpdf',name:'AskYourPDF',domain:'askyourpdf.com',emoji:'📄',subcat:'文档分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'PDF快速问答 · 页码精确引用 · 零门槛上手',
+   what:'轻量 PDF 对话工具，单 Agent 链路，结构最简单。回答时标注原文页码，用户可跳转验证。',
+   howFlow:'PDF 解析→定位 Agent→问答生成',
+   howType:'对话线性型',
+   howMechanism:'单 Agent 链路，结构最简单。回答时标注原文页码，用户可跳转验证。交互形式是纯对话，没有结构化输出能力。',
+   howTrigger:'被动响应（文字输入）',
+   howOutput:'文字答案+页码引用',
+   howOperable:'页码引用可跳转，支持导出对话记录',
+   howInnovation:'零门槛上传即用，页码精确定位',
+   steps:[
+     {actor:'人',text:'上传PDF文件，提供原始材料'},
+     {actor:'人',text:'输入问题「这份报告的核心结论是什么」，以自然语言提问'},
+     {actor:'AI',text:'定位相关段落，生成摘要，标注页码，AI处理长文档，输出精炼答案'},
+     {actor:'人',text:'根据页码跳转原文核实，对AI输出进行质量把关'},
+     {actor:'人',text:'继续追问具体数据点，逐步缩小信息范围，提取所需数据'}
+   ],
+   scene:'行业背景：教育、法律、通用文档阅读。\n设计师场景：快速从设计规范PDF中查找某条规则、提取合同关键条款。\n局限：单文档，无跨文档能力，输出形态单一。',
+   tags:['PDF对话','页码定位','轻量'],
+   radar:{交互创新度:2,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'弱适配','迭代优化':'不适用'}},
+
+  {id:'humata',name:'Humata',domain:'humata.ai',emoji:'🏢',subcat:'文档分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'多文档跨源对比 · 文档内容写入草稿 · 批量文档管理',
+   what:'企业文档分析平台，核心差异在于「逐句标注」——不只标注页码，而是每句回答都直接链接到对应原文片段，透明度更高。',
+   howFlow:'多文档解析→语义检索→逐句来源标注',
+   howType:'对话线性型 结构化输出型',
+   howMechanism:'每句回答都直接链接到对应原文片段（逐句标注），透明度最高。支持批量多文档管理，支持将AI回答写入文档草稿。',
+   howTrigger:'被动响应（文字输入）',
+   howOutput:'文字答案+逐句原文链接',
+   howOperable:'支持将AI回答写入文档草稿，可操作性较强',
+   howInnovation:'逐句标注——不只标注页码，而是每句回答都链接对应原文片段',
+   steps:[
+     {actor:'人',text:'批量上传3份PDF报告，构建多文档知识库'},
+     {actor:'人',text:'提问「三份报告对设计师AI工具接受度的结论是否一致」，设置跨文档比较任务'},
+     {actor:'AI',text:'跨文档检索，生成对比性回答，标注各结论来源，自动整合多文档，区分来源'},
+     {actor:'人',text:'对矛盾结论追问原因，发现不一致后深入追问'},
+     {actor:'AI',text:'定位各文档中的具体段落，解释差异，回到原文上下文，提供证据支撑'}
+   ],
+   scene:'行业背景：法律合规、金融报告分析、企业知识管理。\n设计师场景：分析多份用户研究报告、管理跨项目的设计文档库。\n局限：界面功能偏多，学习成本略高于AskYourPDF。',
+   tags:['逐句标注','多文档','企业级'],
+   radar:{交互创新度:3,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'弱适配'}},
+
+  {id:'explainpaper',name:'Explainpaper',domain:'explainpaper.com',emoji:'🔬',subcat:'文档分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'原位触发 · 零输入门槛 · 阅读不中断',
+   what:'学术论文阅读辅助工具，交互起点不是「输入框」，而是「在原文上框选」——用空间选择替代文字描述，是文档分析类中交互方式最有创新性的工具。',
+   howFlow:'原文渲染→选区识别→解释生成→右侧呈现',
+   howType:'对话线性型 上下文感知型',
+   howMechanism:'交互起点是「在原文上框选」——用空间选择替代文字描述，AI 感知用户选择的原文片段作为问题的上下文，解释出现在右侧栏，不打断阅读流。',
+   howTrigger:'空间触发（框选原文片段）',
+   howOutput:'右侧栏内联解释',
+   howOperable:'解释出现在右侧栏，可继续追问，但解释本身不能被进一步操作',
+   howInnovation:'框选原文触发解释，突破了输入框模式，是本类最具创新性的交互',
+   steps:[
+     {actor:'人',text:'上传PDF文档，主动发起，无AI介入'},
+     {actor:'人',text:'阅读原文，遇到不懂的段落，人自主阅读，AI处于待机状态'},
+     {actor:'人',text:'框选不懂的文字片段，通过空间操作（框选）表达意图，这是人→AI的关键交接点'},
+     {actor:'AI',text:'生成针对该片段的解释，以框选内容为上下文，显示在右侧栏，不打断原文阅读'},
+     {actor:'人',text:'判断解释是否满足需求，「懂了/还不够」，这是AI→人的交接点'},
+     {actor:'人',text:'继续追问或回到原文阅读，满意则继续读，不满意则追问'}
+   ],
+   scene:'行业背景：学术教育、科研。\n设计师场景：阅读设计研究论文时，框选看不懂的统计数据或术语，即时获得解释，不打断阅读流。\n局限：仅支持PDF，解释深度依赖AI对专业领域的理解。',
+   tags:['框选交互','论文阅读','即时解释'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'弱适配','可用性测试':'不适用','迭代优化':'弱适配'}},
+
+  {id:'otter',name:'Otter.ai',domain:'otter.ai',emoji:'🎙️',subcat:'总结归纳型',cat:'理解支持型',tested:'已测试',
+   tagline:'实时自动转录 · 说话人智能区分 · 会议全流程自动化',
+   what:'会议录音转写与智能摘要工具，实时转写并发言人识别，点击音频段落可在右侧对话栏追问——局部内容触发对话，而非只能全局提问。',
+   howFlow:'实时转写→发言人识别→摘要生成→行动项提取',
+   howType:'结构化输出型',
+   howMechanism:'多 Agent 围绕同一段音频各自提取不同维度信息，并行处理。点击音频转文字的某个段落，可以在右侧对话栏进行追问——局部内容触发对话。',
+   howTrigger:'自动触发（AI主动加入会议）',
+   howOutput:'逐字转录稿+摘要+行动项',
+   howOperable:'转录稿可直接编辑，支持导出多种格式，行动项可直接用于会议纪要',
+   howInnovation:'AI作为「无声记录者」主动进入会议，局部音频片段触发追问',
+   steps:[
+     {actor:'AI',text:'Otter自动加入视频访谈会议，作为「无声记录者」进入会议，人无需操作'},
+     {actor:'人',text:'研究者专注访谈，无需手动记录，AI承担记录任务，人专注于交流和追问'},
+     {actor:'AI',text:'实时生成逐字转录，区分访谈者和用户，说话人识别使后期分析清晰度大幅提升'},
+     {actor:'AI',text:'访谈结束后，自动生成摘要和关键观点，主动行为，无需额外指令'},
+     {actor:'人',text:'在转录文本上标注、评论、提取痛点，在AI整理好的文本上进行专业分析'},
+     {actor:'人/AI',text:'将摘要同步到Notion或Slack，分享给团队，一键同步，减少跨平台搬运成本'}
+   ],
+   scene:'行业背景：企业会议、远程协作、用户访谈记录。\n设计师场景：用户访谈录音自动转写并生成行动项；设计评审会议记录整理。\n局限：免费版录音时长有限，长会议处理质量下降。',
+   tags:['会议转写','行动项提取','实时'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:3,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'强适配','迭代优化':'中等适配'}},
+
+  {id:'fireflies',name:'Fireflies.ai',domain:'fireflies.ai',emoji:'🔥',subcat:'总结归纳型',cat:'理解支持型',tested:'已测试',
+   tagline:'跨会议语义检索 · 行动项自动分发 · 情绪与发言分析',
+   what:'会议 AI 助手，特色在于「执行型 Agent」——不只输出文字报告，还能把会议结论直接写入 Salesforce、Notion、Slack 等外部系统，是总结归纳类中 Agent 协作链路延伸最长的工具。',
+   howFlow:'会议接入→转写识别→主题归纳→CRM 同步 Agent',
+   howType:'结构化输出型 上下文感知型',
+   howMechanism:'「执行型 Agent」——不只输出文字报告，还能把会议结论直接写入 Salesforce、Notion、Slack 等外部系统。支持跨多次会议搜索，感知一段时间内的讨论主题变化。',
+   howTrigger:'自动触发（AI主动加入会议）',
+   howOutput:'行动项+CRM记录+情绪分析报告',
+   howOperable:'行动项自动提取+同步到CRM/Asana/Notion，团队协作闭环较完整',
+   howInnovation:'AskFred功能允许直接向会议录音提问，从「被动记录」到「主动问答」；行动项自动同步外部系统',
+   steps:[
+     {actor:'AI',text:'Fireflies自动加入每次测试会话并录制，全程自动，研究者无感'},
+     {actor:'人',text:'测试结束后，向AskFred提问「哪些用户提到了导航问题」，用自然语言跨多个会议搜索'},
+     {actor:'AI',text:'定位所有相关片段，附带时间戳和说话人，跨会议检索，省去逐个回放的时间'},
+     {actor:'人',text:'听取片段，判断问题严重程度，人做质量判断，AI只做量的聚合'},
+     {actor:'AI',text:'自动生成问题频次统计和情绪标注，辅助优先级判断'},
+     {actor:'AI',text:'行动项自动同步到Jira（「修复导航逻辑」），测试发现直接进入开发待办，减少传递成本'}
+   ],
+   scene:'行业背景：销售、客户成功、项目管理。\n设计师场景：设计评审会议纪要自动同步到Notion设计文档；用户访谈结论自动更新到项目看板。\n局限：与Zoom/Teams深度绑定，独立使用价值有限。',
+   tags:['CRM同步','会议助手','执行型Agent'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:3,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'强适配','迭代优化':'中等适配'}},
+
+  {id:'notta',name:'Notta',domain:'notta.ai',emoji:'🌐',subcat:'总结归纳型',cat:'理解支持型',tested:'已测试',
+   tagline:'多语言实时转录翻译 · 格式标准化导出 · 操作极简',
+   what:'多语言会议转写与摘要工具，翻译 Agent 是其核心差异，覆盖50+语言的跨语言会议场景，胜在多语言覆盖的广度。',
+   howFlow:'转写 Agent→翻译 Agent→摘要生成',
+   howType:'结构化输出型',
+   howMechanism:'三个 Agent 串行运作，翻译 Agent 是其核心差异。与 Otter/Fireflies 相比，交互创新程度较低，胜在多语言覆盖的广度。',
+   howTrigger:'被动响应（录音上传或实时录制）',
+   howOutput:'双语转录稿+摘要，支持Word/PDF/SRT字幕导出',
+   howOperable:'转录稿可导出多种格式，支持模板化输出',
+   howInnovation:'50+语言实时转录+翻译，双语并排显示',
+   steps:[
+     {actor:'人',text:'开启Notta录制，选择「日语→中文」实时翻译，设置语言参数'},
+     {actor:'AI',text:'访谈进行，Notta实时转录日语并翻译为中文，双语并排显示，研究者可实时理解用户意图'},
+     {actor:'人',text:'访谈结束，导出双语转录稿，一键导出，格式标准化'},
+     {actor:'AI',text:'生成中文摘要，基于转录内容自动生成'},
+     {actor:'人',text:'在转录稿上标注关键段落，做专业分析判断'}
+   ],
+   scene:'行业背景：跨国企业、外语学习、国际会议。\n设计师场景：处理海外用户访谈录音、整理英文设计评审会议记录。\n局限：除多语言外，与竞品差异不明显。',
+   tags:['多语言','翻译','转写'],
+   radar:{交互创新度:2,输出可操作性:4,Agent协作复杂度:2,上下文感知能力:2,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'不适用','可用性测试':'中等适配','迭代优化':'不适用'}},
+
+  {id:'notion-summary',name:'Notion AI',domain:'notion.so',emoji:'📝',subcat:'总结归纳型',cat:'理解支持型',tested:'未测试',
+   tagline:'原位触发无缝融合 · 工作区知识全局感知 · 输出即可编辑文档',
+   what:'嵌入笔记工作流的 AI 写作与分析助手，Agent 直接在文档中工作，感知当前段落内容作为上下文，可以 cosplay 工作中的特定角色。',
+   howFlow:'上下文感知→总结/改写/续写→内联输出',
+   howType:'上下文感知型 结构化输出型',
+   howMechanism:'Agent 直接在文档中工作，感知当前段落内容作为上下文。可搜索整个Notion工作区回答问题，跨页面知识整合，Q&A功能相当于内部知识Agent。',
+   howTrigger:'原位触发（选中文字右键调用）',
+   howOutput:'文档内联输出，可立即编辑',
+   howOperable:'AI输出直接出现在Notion文档中，可立即编辑、拖拽重组，与工作区无缝融合，可操作性最高',
+   howInnovation:'原位触发模式 + 工作区全局知识感知，输出即为可编辑工作内容',
+   steps:[
+     {actor:'人',text:'将访谈原始笔记粘贴到Notion页面，提供原材料'},
+     {actor:'人',text:'选中所有文字，调用「AI→总结」，原位触发，不离开工作区'},
+     {actor:'AI',text:'生成摘要，插入文档顶部，输出直接嵌入文档，人可立即看到效果'},
+     {actor:'人',text:'对摘要进行修改、补充，AI输出是起点，人做最终判断'},
+     {actor:'人',text:'向Notion AI提问「我们所有的用户研究里，提到导航问题的有哪些」，跨工作区搜索'},
+     {actor:'AI',text:'生成跨页面汇总，附链接，相当于个人知识库的AI检索'}
+   ],
+   scene:'行业背景：知识管理、产品团队、设计团队。\n设计师场景：设计文档内直接总结用户反馈要点、在设计方案旁边让AI分析优劣。\n局限：强依赖Notion平台，跨平台迁移困难。',
+   tags:['文档内嵌','上下文感知','知识管理'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'中等适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'consensus',name:'Consensus',domain:'consensus.app',emoji:'⚖️',subcat:'结构拆解与分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'学术共识度可视化 · 假设验证导向 · 结论立场直观标注',
+   what:'学术共识检索工具，输出不是单一答案，而是「支持/反对/中立」的分布图，绿/红/灰色标签显示是否有定论，是独特的信息呈现方式。',
+   howFlow:'文献搜索→立场提取→共识判断→可视化呈现',
+   howType:'结构化输出型',
+   howMechanism:'Agent 工作状态可见（显示当前在处理哪步）。输出是「支持/反对/中立」的分布图，右侧显示每篇文献来源，可用过滤器按年份、研究类型筛选。',
+   howTrigger:'被动响应（问题输入）',
+   howOutput:'共识度分布图+支撑文献列表',
+   howOperable:'可导出文献列表和共识摘要，Copilot功能支持进一步追问',
+   howInnovation:'搜索问题后直接呈现「学术界对此问题的共识程度」，是独特的信息呈现方式',
+   steps:[
+     {actor:'人',text:'在Consensus输入研究问题，以自然语言提出假设性问题'},
+     {actor:'AI',text:'检索相关学术文献，生成共识度判断，显示「Yes/No/Mixed」标签，聚合多篇论文立场'},
+     {actor:'人',text:'查看共识度和代表性论文摘要，直观判断学术界是否有定论'},
+     {actor:'人',text:'点击具体论文，查看原始结论，AI→人的交接点，人对关键论文进行深读'},
+     {actor:'人',text:'将共识结论引用到研究报告中为设计决策提供依据，学术证据支撑设计假设'}
+   ],
+   scene:'行业背景：医疗健康、学术研究、政策制定。\n设计师场景：查找「信息架构对用户认知负荷的影响」等有研究支撑的设计问题；为设计决策寻找学术依据。\n局限：仅覆盖学术文献，工业界实践不在其范围内。',
+   tags:['共识分析','文献搜索','可视化'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:2,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'中等适配','迭代优化':'弱适配'}},
+
+  {id:'semantic',name:'Semantic Scholar',domain:'semanticscholar.org',emoji:'🕸️',subcat:'结构拆解与分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'TLDR一句话摘要筛选 · 引用关系与影响力分析 · 免费高质量学术数据库',
+   what:'AI 驱动的学术文献图谱平台，输出是可点击的引用关系图谱，输出物本身是探索的空间，而非线性的列表。',
+   howFlow:'文献检索→引用关系分析→图谱构建→趋势识别',
+   howType:'空间探索型',
+   howMechanism:'输出是可点击的引用关系图谱，用户点击节点（论文）跳转到该论文详情，详情页又是新的图谱起点——输出物本身是探索的空间，而非线性的列表。',
+   howTrigger:'被动响应（关键词输入）',
+   howOutput:'可交互引用关系图谱+TLDR摘要',
+   howOperable:'可导出文献引用，支持创建个人文献库，TLDR功能提供一句话摘要',
+   howInnovation:'引用关系可视化、「高影响力引用」筛选，输出即是探索的空间',
+   steps:[
+     {actor:'人',text:'输入关键词，搜索相关领域，发起检索'},
+     {actor:'AI',text:'按引用量、发表年份、相关度排序结果，高引用论文优先展示'},
+     {actor:'人',text:'通过TLDR（一句话摘要）快速浏览，TLDR降低筛选成本，人不需要逐篇读摘要'},
+     {actor:'人',text:'筛选「高影响力引用」查看学术传播链路，了解论文在该领域影响了哪些后续研究'},
+     {actor:'人',text:'保存关键论文到个人文献库，构建个人研究资料库'},
+     {actor:'人',text:'配合Elicit进行结构化信息提取，两个工具组合：Semantic Scholar负责发现，Elicit负责提取'}
+   ],
+   scene:'行业背景：学术研究、科技情报。\n设计师场景：了解某个设计领域（如「可达性设计」）的核心研究脉络；发现自己不了解的相关研究方向。\n局限：强学术属性，设计实践领域覆盖有限。',
+   tags:['引用图谱','空间探索','文献发现'],
+   radar:{交互创新度:3,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:2,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'不适用'}},
+
+  {id:'scispace',name:'Scispace',domain:'typeset.io',emoji:'📖',subcat:'结构拆解与分析型',cat:'理解支持型',tested:'已测试',
+   tagline:'论文内原位框选解释 · 搜索→阅读一站完成 · 联系全文上下文解释',
+   what:'学术论文阅读、管理与分析一体化平台，支持在原文框选解释，同时提供 Library 功能与文献综述生成，是本类中工作流覆盖最完整的工具。',
+   howFlow:'文献检索→阅读解析→Library 归档→引用格式化',
+   howType:'结构化输出型 对话线性型',
+   howMechanism:'与 Explainpaper 类似支持在原文框选解释，同时还提供 Library 功能（存储/分类/引用文献），以及文献综述生成。是本类中工作流覆盖最完整的工具。',
+   howTrigger:'空间触发（框选原文片段）',
+   howOutput:'内联解释+推荐相关论文',
+   howOperable:'解释内容可继续追问，支持导出对话记录',
+   howInnovation:'框选解释 + 搜索→阅读→管理一站完成，联系论文整体上下文而非孤立解释',
+   steps:[
+     {actor:'人',text:'在Scispace搜索论文，或上传PDF，一站式发现+阅读，无需切换工具'},
+     {actor:'人',text:'在PDF内阅读，遇到不懂的统计图表，人自主阅读，AI待机'},
+     {actor:'人',text:'框选图表，触发「解释这个图」，空间化操作触发AI，比输入框更直接'},
+     {actor:'AI',text:'结合论文上下文解释图表含义，解释不孤立于单个图表，而是联系论文整体论证'},
+     {actor:'人',text:'追问「这个研究方法有什么局限性」，继续追问，深化理解'},
+     {actor:'AI',text:'推荐引用了相同方法的相关论文，主动扩展阅读路径，从一篇文献延伸到知识网络'}
+   ],
+   scene:'行业背景：学术研究、研究生教育。\n设计师场景：收集、整理、引用设计领域研究文献；做文献综述式的设计依据报告。\n局限：功能多但部分功能质量参差，不如专项工具精深。',
+   tags:['框选解释','文献管理','综述生成'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:3,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'不适用'}}
+];
+
+
+// ═══════════════════════════════════════════════════
+// GENERATE TOOLS DATA
+// ═══════════════════════════════════════════════════
+const GENERATE_TOOLS = [
+  // ── 文本生成型 ──
+  {id:'chatgpt',name:'ChatGPT',domain:'chat.openai.com',emoji:'💬',subcat:'文本生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'复杂逻辑推演 · 全能插件生态',
+   what:'OpenAI 的对话式大语言模型，支持多轮对话、工具调用（联网搜索、代码执行、DALL-E 绘图）和复杂推理。',
+   howFlow:'意图理解→工具调用→多轮对话→结构化输出',
+   howType:'对话线性型 工具增强型',
+   howMechanism:'单一 LLM Agent，调用联网搜索、代码解释器、DALL-E 3 绘图等多个工具。记忆力强，能记住长对话中的细节要求。',
+   howTrigger:'被动响应（文字输入）',
+   howOutput:'结构化文字/代码/图像',
+   howOperable:'生成的代码、表格、文案可直接复制使用，逻辑推演能力极强',
+   howInnovation:'全能插件生态，一个入口统一调度多种生成能力',
+   steps:[
+     {actor:'人',text:'上传原始文本并输入摘要指令，发起任务'},
+     {actor:'AI',text:'开始扫描长文本，后台处理内容'},
+     {actor:'人',text:'针对关键洞察点提出疑问（人→AI的交接点）'},
+     {actor:'AI',text:'回归原文寻找证据并生成补充解释'},
+     {actor:'人',text:'审阅补充解释的准确性（AI→人的交接点）'},
+     {actor:'人',text:'确认无误后要求转化为用户画像模板，推动下一流转'}
+   ],
+   scene:'通用问答、写作辅助、客服、教育。\n设计师场景：梳理调研访谈提纲、竞品实时对比分析、推演功能改进逻辑。\n局限：对话框模式较传统，无法生成可视化设计稿。',
+   tags:['逻辑推演','插件生态','多轮对话'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'强适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'claude-tool',name:'Claude',domain:'claude.ai',emoji:'🤖',subcat:'文本生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'超长文档分析 · 逻辑严密人感',
+   what:'Anthropic 的对话式 LLM，以超长上下文理解、Artifacts 实时预览和代码分析见长，输出逻辑严密。',
+   howFlow:'文件解析→长文理解→Artifacts生成→实时预览',
+   howType:'对话线性型 文档分析型',
+   howMechanism:'Artifacts 功能让生成的文档/代码能侧边实时预览，大幅提升交互体验。支持超长文档上传，对整本书的理解非常精准。',
+   howTrigger:'被动响应（文字/文件输入）',
+   howOutput:'Artifacts 代码/文档侧边预览',
+   howOperable:'分析结果严密，输出的代码质量极高，Artifacts 可直接交互预览',
+   howInnovation:'Artifacts 侧边实时预览，生成即可在同一界面操作验证',
+   steps:[
+     {actor:'人',text:'拖入 PDF 规范文件，无需额外指令'},
+     {actor:'人',text:'要求 AI 提取所有的交互状态，发起任务'},
+     {actor:'AI',text:'在侧边栏实时生成代码演示组件，独立空间展示'},
+     {actor:'人',text:'直接在预览组件上进行点击操作，空间反馈交接点'},
+     {actor:'人',text:'观察组件反馈是否符合预期规范（AI→人的交接点）'},
+     {actor:'人',text:'满意则复制代码，不满意则输入修改意见，循环反馈'}
+   ],
+   scene:'长文档处理、内容创作、代码、研究。\n设计师场景：处理超长篇研究论文、对比多份竞品白皮书、生成可预览的交互原型代码。\n局限：多 Agent 联动较少，更侧重单模型大脑处理。',
+   tags:['长文档','Artifacts预览','代码分析'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:5,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'中等适配','竞品分析':'强适配','可用性测试':'弱适配','迭代优化':'中等适配'}},
+
+  {id:'deepl-write',name:'DeepL Write',domain:'deepl.com',emoji:'✏️',subcat:'文本生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'地道专业润色 · 多重语气切换 · 不同语句选择',
+   what:'专注语言润色的 AI 写作助手，左右分栏实时对比，点击单词触发同义词替换，操作非常直观。',
+   howFlow:'文本输入→语言分析→改写建议→同义词替换',
+   howType:'实时反馈型',
+   howMechanism:'单一语言模型，左右分栏实时对比原文与改写版本，点击单词弹出同义词库及不同语气改写选项。',
+   howTrigger:'被动响应（粘贴文本后自动触发）',
+   howOutput:'左右对比改写建议',
+   howOperable:'点击应用即生效，支持全文一键替换或单词级精准替换',
+   howInnovation:'左右分栏实时对比 + 单词点击触发同义词替换，操作直观',
+   steps:[
+     {actor:'人',text:'粘贴英文草稿，无需额外操作'},
+     {actor:'AI',text:'自动给出全篇优化建议，静默介入'},
+     {actor:'人',text:'鼠标点击某个不自然的专业术语（精准意图交接点）'},
+     {actor:'AI',text:'弹出同义词库及不同语气的改写选项（提供决策切片）'},
+     {actor:'人',text:'挑选最符合品牌调性的词汇（决策交接）'},
+     {actor:'人',text:'点击应用到全文并导出（结束协作）'}
+   ],
+   scene:'专业文档润色、多语言写作。\n设计师场景：润色英文项目介绍、优化迭代报告中的专业术语表达。\n局限：仅用于文本润色，无法进行复杂逻辑推演。',
+   tags:['文本润色','同义词替换','语气切换'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:2,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'弱适配','原型设计':'不适用','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'弱适配'}},
+
+  {id:'jasper',name:'Jasper',domain:'jasper.ai',emoji:'🚀',subcat:'文本生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'海量营销模板 · 学习品牌调性',
+   what:'面向营销的 AI 内容生成平台，基于模板的表单式输入，调用 SEO 优化 Agent 和品牌语调校对 Agent，支持学习用户品牌指南。',
+   howFlow:'模板选择→关键词输入→多版本生成→偏好学习',
+   howType:'模板驱动型 多版本输出型',
+   howMechanism:'调用 SEO 优化 Agent 和品牌语调校对 Agent，能学习用户上传的品牌指南，保持语调一致，针对营销场景设计的输出直接对标广告文案标准。',
+   howTrigger:'被动响应（模板表单填写）',
+   howOutput:'多版本营销文案草案',
+   howOperable:'直接对标广告文案标准，可一键批量生成多版本',
+   howInnovation:'"More like this" 偏好学习 + 品牌语调记忆，让 AI 越用越懂你',
+   steps:[
+     {actor:'人',text:'选择邮件营销模板（定义框架）'},
+     {actor:'人',text:'输入产品核心卖点关键词（输入语料）'},
+     {actor:'AI',text:'生成 3 组不同风格的草案（并行产出）'},
+     {actor:'人',text:'点击"More like this"按钮（意图交接点）'},
+     {actor:'AI',text:'学习偏好并重新生成 3 组新方案（反馈响应）'},
+     {actor:'人',text:'选择最优方案进行微调（结束协作）'}
+   ],
+   scene:'广告文案、社媒内容、营销团队。\n设计师场景：编写招募志愿者的营销邮件、提供高度符合商业调性的 UI 营销文案。\n局限：需了解基础营销概念才能选对模板。',
+   tags:['营销文案','模板驱动','品牌调性'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'弱适配','原型设计':'中等适配','竞品分析':'弱适配','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  {id:'copyai',name:'Copy.ai',domain:'copy.ai',emoji:'📋',subcat:'文本生成型',cat:'内容生成型',tested:'未测试',
+   tagline:'批量内容自动化 · 预设工作流',
+   what:'营销文案自动化生成工具，基于预设工作流的 LLM 平台，擅长批量生产电商描述、邮件营销和社媒内容。',
+   howFlow:'工作流选择→批量输入→自动化生成→内容导出',
+   howType:'工作流驱动型',
+   howMechanism:'LLM + 预设工作流 Agent，支持批量内容生产，适合有标准化需求的营销团队。',
+   howTrigger:'被动响应（工作流触发）',
+   howOutput:'批量结构化营销内容',
+   howOperable:'批量导出，适合高频次重复性内容生产',
+   howInnovation:'工作流自动化批量生产，将内容营销流程标准化',
+   steps:[
+     {actor:'人',text:'选择批量内容工作流（定义规则）'},
+     {actor:'人',text:'上传产品列表或关键词数据（批量输入）'},
+     {actor:'AI',text:'自动执行工作流批量生成内容（规模化执行）'},
+     {actor:'人',text:'审查抽样输出质量（质量把关）'},
+     {actor:'人',text:'一键导出全量内容（结束协作）'}
+   ],
+   scene:'电商描述、邮件营销、社媒运营。\n设计师场景：批量生成界面文案变体、快速产出多版本 UI 文字供测试。\n局限：创意深度不及自由对话工具。',
+   tags:['批量生产','工作流','电商文案'],
+   radar:null,
+   matrix:{'用户研究':'不适用','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  // ── 图像生成型 ──
+  {id:'midjourney',name:'Midjourney',domain:'midjourney.com',emoji:'🎨',subcat:'图像生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'顶级艺术审美 · 细腻光影质感',
+   what:'顶级 AI 图像生成模型，通过 Discord 或网页交互，以 Prompt 驱动扩散模型生成极具艺术感的高质量图像。',
+   howFlow:'Prompt解析→扩散生成→局部变体→放大精修',
+   howType:'批次生成型',
+   howMechanism:'扩散模型 + Discord/网页 Bot 交互，支持 Vary Region 局部修改，通过参数后缀精细控制风格、比例和画质。',
+   howTrigger:'被动响应（指令输入）',
+   howOutput:'高精度位图（4选1）',
+   howOperable:'输出位图，不具备分层，后续修改需借助 PS 等工具',
+   howInnovation:'"Vary Region" 局部框选重绘，精准修改画面局部而不破坏整体',
+   steps:[
+     {actor:'人',text:'发送绘图指令生成初稿（意图发起）'},
+     {actor:'人',text:'点击"Vary Region"局部修改按钮（发起交接）'},
+     {actor:'人',text:'在弹出画布上框选需要修改的物体（空间操作意图）'},
+     {actor:'AI',text:'保持背景不动，仅重绘框选区域（局部响应）'},
+     {actor:'人',text:'观察新生成的局部是否与原图光影融合（审美评判）'},
+     {actor:'人',text:'满意则保存，不满意则修改 Prompt 重绘（循环迭代）'}
+   ],
+   scene:'概念艺术、品牌视觉、创意设计。\n设计师场景：生成具质感的 UI 元素/图标背景、Storyboard 概念图、视觉风格探索。\n局限：需学习大量 Prompt 参数，输出位图后期修改成本高。',
+   tags:['艺术生成','光影质感','Vary Region'],
+   radar:{交互创新度:2,输出可操作性:2,Agent协作复杂度:3,上下文感知能力:2,用户门槛:2},
+   matrix:{'用户研究':'中等适配','原型设计':'中等适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'弱适配'}},
+
+  {id:'dalle3',name:'DALL-E 3',domain:'openai.com',emoji:'🖼️',subcat:'图像生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'精准听懂人话 · 对话式微改图',
+   what:'OpenAI 图像生成模型，集成于 ChatGPT，通过聊天对话驱动图像生成与修改，无需学习 Prompt 语法。',
+   howFlow:'ChatGPT Prompt优化→扩散模型生成→对话式微调',
+   howType:'对话驱动型',
+   howMechanism:'ChatGPT 作为 Prompt Agent 与 DALL-E 生成 Agent 深度协作，能记住上一轮关于图片风格的要求，通过自然语言对话实现定向修改。',
+   howTrigger:'被动响应（自然语言描述）',
+   howOutput:'高质量位图',
+   howOperable:'支持简单的局部重绘，缺乏细致的像素控制',
+   howInnovation:'通过 ChatGPT 聊天就能改图，无需学习 Prompt 咒语，极低门槛',
+   steps:[
+     {actor:'人',text:'描述第一个场景的画面意向，无需额外指令'},
+     {actor:'AI',text:'生成图像（执行）'},
+     {actor:'人',text:'对话输入"让图中主角换上一件红色外衣"（语义级交接点）'},
+     {actor:'AI',text:'识别上一张图的内容并进行定向修改（上下文响应）'},
+     {actor:'人',text:'判断新生成的角色一致性（质量检查）'},
+     {actor:'人',text:'继续描述下一个分镜场景（持续协作）'}
+   ],
+   scene:'插图创作、原型视觉、内容配图。\n设计师场景：脑暴会中实时把团队想法转化为草图、为 Storyboard 绘制插画。\n局限：输出位图，难以直接用于高保真 UI 原型。',
+   tags:['自然语言绘图','对话修图','零门槛'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:4,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  {id:'stable-diffusion',name:'Stable Diffusion',domain:'stability.ai',emoji:'🌀',subcat:'图像生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'像素精准控制 · 高度自由定制',
+   what:'开源扩散模型（Stability AI），本地/云端可部署，通过 ControlNet、LoRA 等插件实现极高精度的画面控制。',
+   howFlow:'参数设置→ControlNet约束→扩散生成→种子调优',
+   howType:'参数控制型',
+   howMechanism:'开源模型，支持 LoRA 微调、ControlNet 边缘控制等插件，用户充当调度员，ComfyUI 节点式操作提供极高自由度。',
+   howTrigger:'主动配置（参数设置触发）',
+   howOutput:'可高度控制的位图',
+   howOperable:'配合 ControlNet 和分层工具，对画面每一处细节都能操作，可操作性最强',
+   howInnovation:'ControlNet 将线框图约束融入扩散生成，实现结构精准控制',
+   steps:[
+     {actor:'人',text:'上传白底黑线草图（提供约束）'},
+     {actor:'人',text:'设置边缘检测强度等参数（技术干预）'},
+     {actor:'人',text:'点击 Generate 发送任务（交接点）'},
+     {actor:'AI',text:'严谨遵循线条结构生成渲染稿（受限生成）'},
+     {actor:'人',text:'检查材质表现是否真实（专业审视）'},
+     {actor:'人',text:'调整种子值（Seed）尝试不同材质方案（循环控制）'}
+   ],
+   scene:'开发者定制、游戏美术、影视概念图。\n设计师场景：根据线框图生成特定 CMF 效果图、快速测试不同颜色和材质组合。\n局限：需要部署环境，学习曲线极陡峭，门槛极高。',
+   tags:['ControlNet','开源定制','精准控制'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:2,用户门槛:1},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'中等适配'}},
+
+  {id:'firefly',name:'Adobe Firefly',domain:'firefly.adobe.com',emoji:'🔥',subcat:'图像生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'商业素材合规 · PS原生融合',
+   what:'Adobe 生态内的 AI 图像生成工具，首创框选涂抹交互，完全融入 PS 传统选区逻辑，输出内容为独立图层。',
+   howFlow:'PS选区→语义描述→环境感知生成→图层输出',
+   howType:'空间感知型',
+   howMechanism:'首创框选涂抹交互，完全融入 PS 传统选区逻辑。精准感知周边光影和透视，生成内容为独立图层，可与已有设计完美融合。',
+   howTrigger:'空间触发（PS选区+语义描述）',
+   howOutput:'独立图层（可直接编辑）',
+   howOperable:'生成内容为独立图层，可与已有设计完美融合，操作性极强',
+   howInnovation:'首创框选涂抹交互，将 AI 生成完全嵌入 PS 传统工作流',
+   steps:[
+     {actor:'人',text:'在 PS 中用套索工具选定背景区域（空间定义意图）'},
+     {actor:'人',text:'在任务栏输入"极简主义木质桌面"（语义指令交接点）'},
+     {actor:'AI',text:'自动剔除原背景并补齐光影细节（环境适配）'},
+     {actor:'人',text:'在生成的 3 个候选项中来回切换（决策判断）'},
+     {actor:'人',text:'选择最融合的一个选项（确认）'},
+     {actor:'人',text:'手动使用橡皮擦微调边缘（人工介入接管）'}
+   ],
+   scene:'商业设计、广告、PS/ID 工作流集成。\n设计师场景：在现有设计稿上快速替换界面元素或背景、局部修改图像细节无需重画整个画面。\n局限：强依赖 Adobe 生态，跨平台使用体验下降。',
+   tags:['PS原生','图层输出','商业合规'],
+   radar:{交互创新度:5,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:5,用户门槛:5},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  // ── UI / 线框图生成型 ──
+  {id:'figma-ai',name:'Figma AI',domain:'figma.com',emoji:'🎯',subcat:'UI / 线框图生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'自动布局感知 · 智能命名打组 · 你的画布好助手',
+   what:'Figma 内置 AI 设计助手，调用组件匹配 Agent、排版布局 Agent、内容生成 Agent，感知当前文件的组件库和图层命名规则。',
+   howFlow:'设计意图解析→组件匹配→Auto Layout生成→智能命名',
+   howType:'上下文感知型',
+   howMechanism:'调用组件匹配 Agent、排版布局 Agent、内容生成 Agent，感知当前设计文件的组件库和图层命名规则，一键生成图层和 Auto Layout。',
+   howTrigger:'原位触发（设计画布内调用）',
+   howOutput:'原生 Figma 矢量文件',
+   howOperable:'输出原生 Figma 矢量文件，可直接编辑每一个节点，可操作性最强',
+   howInnovation:'将 AI 功能植入设计画布，一键生成图层和 Auto Layout，彻底消除工具切换',
+   steps:[
+     {actor:'人',text:'全选当前画布上的所有元素（指定目标）'},
+     {actor:'人',text:'点击"Rename Layers"智能命名按钮（动作交接点）'},
+     {actor:'AI',text:'分析图层视觉内容并自动重命名打组（语义理解）'},
+     {actor:'人',text:'检查侧边栏图层树是否整洁（审阅）'},
+     {actor:'人',text:'手动修正个别 AI 误判的标签（纠错反馈）'},
+     {actor:'人',text:'继续进行下一步组件化操作（结束）'}
+   ],
+   scene:'UI 设计协作、组件生成、设计稿优化。\n设计师场景：一键生成标准 UI 组件和排版布局、一键更新全局设计系统组件。\n局限：需配合 Figma 使用，适合专业设计人士。',
+   tags:['设计系统','Auto Layout','智能命名'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'v0dev',name:'v0.dev',domain:'v0.dev',emoji:'⚡',subcat:'UI / 线框图生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'快速搭建Demo',
+   what:'Vercel 出品的 UI 代码生成工具，将设计意图直接转化为 React/Tailwind 代码，即时预览，点击组件即可针对性发起修改。',
+   howFlow:'需求描述→语义分析→代码生成→预览渲染→点击修改',
+   howType:'代码生成型',
+   howMechanism:'语义分析、UI 库匹配、代码渲染多步协同，在预览界面点击组件即可针对性发起修改请求，上下文感知当前对话中的 UI 迭代逻辑。',
+   howTrigger:'被动响应（文字描述）',
+   howOutput:'React/Tailwind 代码 + 即时预览',
+   howOperable:'直接输出 React 代码，可直接部署生产环境，可操作性最强',
+   howInnovation:'在预览界面点击组件即可针对性发起修改，空间化交互驱动代码修改',
+   steps:[
+     {actor:'人',text:'输入界面功能需求描述（无介入）'},
+     {actor:'AI',text:'实时吐出前端代码并渲染预览窗口（结构化输出）'},
+     {actor:'人',text:'鼠标悬停在预览窗口，点击需要修改的图表（空间交互交接点）'},
+     {actor:'AI',text:'定位代码行并询问修改意图（上下文锚定）'},
+     {actor:'人',text:'输入"把折线图换成柱状图"（执行指令）'},
+     {actor:'人',text:'观察代码实时重写后的视觉反馈（闭环检查）'}
+   ],
+   scene:'前端原型、组件快速开发。\n设计师场景：将设计意图直接转化为 React 代码级 UI 界面、快速部署可交互功能 Demo 供用户操作。\n局限：需要一定的 React/Tailwind 前端知识背景。',
+   tags:['React代码','即时预览','前端原型'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:3,用户门槛:3},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'不适用','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'galileo',name:'Galileo AI',domain:'usegalileo.ai',emoji:'🌌',subcat:'UI / 线框图生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'高保真分层稿 · 文本直达界面 · 画布无限延伸',
+   what:'文字转 UI 设计稿工具，输入一段描述即可生成完整的高保真 UI 方案，可导出至 Figma，图层结构清晰。',
+   howFlow:'文本输入→多页面生成→Figma导出→组件化',
+   howType:'端到端生成型',
+   howMechanism:'偏向于视觉生成 Agent 的高精度运作，支持导出至 Figma 修改，图层结构清晰，对单一 App 的页面逻辑感知较好。',
+   howTrigger:'被动响应（文字描述触发）',
+   howOutput:'高保真分层 UI 设计稿（可导出 Figma）',
+   howOperable:'可导出至 Figma 修改，图层结构清晰',
+   howInnovation:'文本直达高保真多页面连屏，极简输入换取复杂输出',
+   steps:[
+     {actor:'人',text:'输入"医疗预约流程，清新简洁风"（无介入）'},
+     {actor:'AI',text:'生成包含 3-5 个页面的完整连屏（端到端生成）'},
+     {actor:'人',text:'点击"Copy to Figma"按钮（系统流转交接点）'},
+     {actor:'人',text:'在 Figma 中打开并拆解生成的组件（结构化检查）'},
+     {actor:'人',text:'替换 AI 生成的占位文本为真实数据（细节落地）'},
+     {actor:'人',text:'手动调整交互原型连线（逻辑补完）'}
+   ],
+   scene:'产品原型、设计师提效。\n设计师场景：输入描述即生成完整高保真 UI 方案、快速生成新页面备选方案进行 A/B 测试。\n局限：上下文感知对复杂多页面逻辑有限。',
+   tags:['高保真原型','Figma导出','文本转UI'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'中等适配'}},
+
+  {id:'uizard',name:'Uizard',domain:'uizard.io',emoji:'✏️',subcat:'UI / 线框图生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'手绘秒变原型 · 极速验证创意',
+   what:'低门槛 UI 原型生成平台，支持拍照上传手绘草图直接转数字原型，视觉识别 Agent 与 UI 转化 Agent 高效协作。',
+   howFlow:'手绘/截图识别→UI符号转化→皮肤主题应用→原型链接',
+   howType:'多模态输入型',
+   howMechanism:'视觉识别 Agent 与 UI 转化 Agent 高效协作，支持拍照上传手绘草图，AI 识别形状/图标并转化为 UI 符号，Style Transformer 可一键切换主题。',
+   howTrigger:'多模态触发（手绘拍照/截图上传）',
+   howOutput:'可编辑数字化原型',
+   howOperable:'自带编辑器，主要用于原型，功能略弱于 Figma',
+   howInnovation:'拍照即可转数字化线框图，突破软硬件交互壁垒，零设计基础可用',
+   steps:[
+     {actor:'人',text:'拍照并上传手绘草图（无介入）'},
+     {actor:'AI',text:'识别形状、图标并转化为 UI 符号（视觉理解）'},
+     {actor:'人',text:'点击"Style Transformer"更换皮肤（风格交接点）'},
+     {actor:'AI',text:'自动将全量组件一键应用新主题色（全局渲染）'},
+     {actor:'人',text:'判断视觉风格是否符合品牌预期（主观评判）'},
+     {actor:'人',text:'在生成的页面上拖拽元素修改布局（深度控制）'}
+   ],
+   scene:'非设计师产品原型、初创团队验证。\n设计师场景：纸上脑暴草图秒转数字化原型快速验证、直接扫描竞品截图转可编辑线框图拆解。\n局限：功能较 Figma 稍弱，适合原型验证而非精细设计。',
+   tags:['手绘识别','零门槛原型','竞品拆解'],
+   radar:{交互创新度:5,输出可操作性:3,Agent协作复杂度:4,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'强适配','竞品分析':'强适配','可用性测试':'强适配','迭代优化':'中等适配'}},
+
+  // ── 代码与逻辑生成 ──
+  {id:'copilot-code',name:'GitHub Copilot',domain:'github.com',emoji:'🤖',subcat:'代码与逻辑生成',cat:'内容生成型',tested:'已测试',
+   tagline:'代码无感补全 · 实时开发助手',
+   what:'IDE 内嵌 AI 编程助手，在光标位置以灰度提示代码补全建议，按 Tab 采纳，不打断编程思路的隐式交互天花板。',
+   howFlow:'上下文感知→代码预测→灰度提示→Tab采纳',
+   howType:'隐式触发型',
+   howMechanism:'代码流预测 Agent 极速响应，在光标位置灰度提示，不打断思路。感知当前文件及已打开文件的上下文逻辑，自动根据上下文预测下一行。',
+   howTrigger:'隐式触发（输入时自动预测）',
+   howOutput:'可运行代码补全（Tab采纳）',
+   howOperable:'直接补全可运行代码，按下 Tab 键即生效，可操作性最强',
+   howInnovation:'隐式交互天花板，在光标位置灰度提示，完全不打断编程思路',
+   steps:[
+     {actor:'人',text:'输入函数名 calculateDistance（意图启动）'},
+     {actor:'AI',text:'在当前行右侧显示灰色代码补全建议（隐式介入）'},
+     {actor:'人',text:'审阅预览代码是否逻辑正确（逻辑交接点）'},
+     {actor:'人',text:'按下 Tab 键正式采纳代码（操作确认）'},
+     {actor:'AI',text:'自动根据上下文继续预测下一行逻辑（动态跟随）'},
+     {actor:'人',text:'用户编写单元测试进行验证（最终把关）'}
+   ],
+   scene:'日常编码、代码审查、测试生成。\n设计师场景：快速补全复杂的交互逻辑代码、缩短高保真原型开发时间、辅助修复 Bug。\n局限：程序员专属，需要理解编程逻辑。',
+   tags:['代码补全','隐式交互','IDE集成'],
+   radar:{交互创新度:5,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'弱适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'cursor',name:'Cursor',domain:'cursor.com',emoji:'🖱️',subcat:'代码与逻辑生成',cat:'内容生成型',tested:'已测试',
+   tagline:'全局工程理解 · 一键重构逻辑 · 全能型选手',
+   what:'AI 原生代码编辑器，自动扫描全项目工程，理解跨文件调用关系，调用文件索引 Agent、Bug 诊断 Agent、代码生成 Agent 闭环工作。',
+   howFlow:'全库索引→Bug诊断→代码生成→Apply修改',
+   howType:'多Agent协作型',
+   howMechanism:'调用文件索引 Agent、Bug 诊断 Agent、代码生成 Agent 闭环工作。自动扫描全项目工程，理解跨文件调用关系，一键 Apply 修改文件。',
+   howTrigger:'主动提问（侧边栏输入意图）',
+   howOutput:'代码修改 Diff + 一键 Apply',
+   howOperable:'不仅能写代码，还能一键 Apply 修改文件，可操作性极强',
+   howInnovation:'全库索引 + Cmd+K 原地改代码 + Fix in Chat 修复建议，全栈 AI 编程闭环',
+   steps:[
+     {actor:'人',text:'在侧边栏输入"查找权限逻辑失效的原因"（目标定义）'},
+     {actor:'AI',text:'扫描整个代码文件夹建立索引（全局感知）'},
+     {actor:'AI',text:'标注出疑似出错的文件和行数（引导反馈）'},
+     {actor:'人',text:'点击"Fix in Chat"要求修复建议（指令交接点）'},
+     {actor:'AI',text:'生成修复代码并展示前后 Diff 对比（方案提供）'},
+     {actor:'人',text:'点击 Apply 一键应用修改到本地文件（执行决策）'}
+   ],
+   scene:'复杂项目重构、AI 结对编程。\n设计师场景：通过全库索引一键重构高保真原型工程结构、针对测试反馈进行系统性优化。\n局限：需了解基础的项目架构和终端操作。',
+   tags:['全库索引','多Agent','一键重构'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:5,上下文感知能力:5,用户门槛:4},
+   matrix:{'用户研究':'不适用','原型设计':'强适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  // ── 视频与音乐生成型 ──
+  {id:'sora',name:'Sora',domain:'sora.com',emoji:'🎬',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'超写实电影感',
+   what:'OpenAI 文字生成视频模型，扩散 Transformer 架构，将文本/图像描述转化为高质量长视频，物理模拟效果极强。',
+   howFlow:'文本解析→物理模拟→帧序列生成→时间一致性',
+   howType:'文生视频型',
+   howMechanism:'底层涉及极复杂的物理模拟 Agent 与帧同步 Agent，对视频前后的逻辑一致性（如人物不走样）感知强。',
+   howTrigger:'被动响应（文字/图像描述）',
+   howOutput:'高质量视频文件',
+   howOperable:'输出完整视频文件，后续极难进行参数化修改',
+   howInnovation:'打字即成片，超写实物理模拟效果，将文字描述转化为电影感画面',
+   steps:[
+     {actor:'人',text:'输入关于火焰颜色、铜胎质感的细节描述（无介入）'},
+     {actor:'AI',text:'经过长时间计算生成 5 秒视频片段（后台执行）'},
+     {actor:'人',text:'审阅视频中的物理规律（如烟雾动态）（待机审查）'},
+     {actor:'人',text:'发现动作过快，输入"放慢烧制动作"（参数级交接点）'},
+     {actor:'AI',text:'重新计算帧间插值（精细化响应）'},
+     {actor:'人',text:'导出最终满足设计叙事要求的成片（结束）'}
+   ],
+   scene:'影视制作、广告创意、内容生产。\n设计师场景：制作"视频画像"生动展示目标用户生活场景、为产品提案制作动态展示素材。\n局限：目前主要通过 Prompt 触发，交互相对单一，视频后期修改成本极高。',
+   tags:['文生视频','物理模拟','超写实'],
+   radar:{交互创新度:3,输出可操作性:2,Agent协作复杂度:4,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  {id:'luma',name:'Luma Dream Machine',domain:'lumalabs.ai',emoji:'🌙',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'未测试',
+   tagline:'3D感知流畅视频 · 图文生成短片',
+   what:'高质量视频生成工具，3D 感知扩散模型，将图像或文字描述转化为流畅的视频片段，擅长短视频内容和广告分镜制作。',
+   howFlow:'图像/文本解析→3D场景感知→帧序列生成→视频渲染',
+   howType:'文生视频型',
+   howMechanism:'3D 感知扩散模型提供比普通扩散模型更强的空间一致性，支持图转视频和文转视频双模态输入。',
+   howTrigger:'被动响应（图像/文字输入）',
+   howOutput:'流畅视频片段',
+   howOperable:'输出视频文件，后期编辑需借助剪辑工具',
+   howInnovation:'3D感知赋予视频空间一致性，图片动起来更加自然流畅',
+   steps:[
+     {actor:'人',text:'上传图片或输入场景描述（提供素材）'},
+     {actor:'AI',text:'分析空间关系并生成流畅视频（3D感知渲染）'},
+     {actor:'人',text:'审阅视频流畅度和一致性（质量判断）'},
+     {actor:'人',text:'调整描述或参数重新生成（迭代优化）'}
+   ],
+   scene:'短视频内容、广告分镜、创意原型。\n设计师场景：将产品静态图快速生成展示视频、制作服务蓝图中的动态演示片段。',
+   tags:['图生视频','3D感知','流畅运动'],
+   radar:null,
+   matrix:{'用户研究':'弱适配','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  {id:'kling',name:'可灵 Kling',domain:'kling.kuaishou.com',emoji:'🐉',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'未测试',
+   tagline:'中文语义优化 · 国内短视频生态',
+   what:'快手出品的中文视频生成工具，扩散模型 + 中文语义优化，针对国内短视频、电商视频和社媒内容场景深度优化。',
+   howFlow:'中文语义解析→扩散生成→短视频优化→内容输出',
+   howType:'文生视频型',
+   howMechanism:'扩散模型 + 中文语义优化，对中文描述的理解更精准，针对国内平台的视频规格和风格偏好进行专项优化。',
+   howTrigger:'被动响应（中文文字/图像描述）',
+   howOutput:'短视频文件（适配国内平台）',
+   howOperable:'视频导出后可在剪辑软件中进行后期处理',
+   howInnovation:'中文语义优化使描述更精准，国内合规生产内容',
+   steps:[
+     {actor:'人',text:'输入中文场景描述（语义输入）'},
+     {actor:'AI',text:'解析中文语义并生成视频（中文优化生成）'},
+     {actor:'人',text:'审阅视频是否符合预期（质量验证）'},
+     {actor:'人',text:'调整描述或风格参数迭代（优化循环）'}
+   ],
+   scene:'国内短视频、电商视频、社媒内容。\n设计师场景：快速生成国内平台规格的产品展示视频、制作中文项目介绍动态内容。',
+   tags:['中文优化','短视频','电商内容'],
+   radar:null,
+   matrix:{'用户研究':'不适用','原型设计':'不适用','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}},
+
+  {id:'runway',name:'Runway Gen-3',domain:'runwayml.com',emoji:'🎥',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'专业局部重绘 · 运动精准控制',
+   what:'专业级 AI 视频编辑+生成平台，运动刷、分层蒙版操作将 AI 与时间轴编辑完美融合，多模态感知 Agent 与运动补偿 Agent 紧密配合。',
+   howFlow:'图像输入→运动刷涂抹→方向矢量设置→局部动力学',
+   howType:'精细控制型',
+   howMechanism:'运动刷、分层蒙版操作，多模态感知 Agent 与运动补偿 Agent 紧密配合。支持视频转视频、局部重绘，对视频背景与主体的分离感知极其精准。',
+   howTrigger:'空间触发（运动刷涂抹）',
+   howOutput:'专业级可控视频',
+   howOperable:'支持视频转视频、局部重绘，专业级可控性',
+   howInnovation:'运动刷将 AI 与时间轴编辑融合，用涂抹的方式定义运动区域和方向',
+   steps:[
+     {actor:'人',text:'上传静止图片（无介入）'},
+     {actor:'人',text:'拿起运动刷涂抹画面中的水流区域（空间指引交接点）'},
+     {actor:'人',text:'设置水流滑动的方向矢量参数（参数干预）'},
+     {actor:'AI',text:'仅在涂抹区域生成动态纹理（局部动力学模拟）'},
+     {actor:'人',text:'预览动态是否自然且不破坏其他静止部分（细节检查）'},
+     {actor:'人',text:'生成高分辨率视频并导出（结束协作）'}
+   ],
+   scene:'影视后期、MV 制作、创意视频。\n设计师场景：将调研照片转化为动态演示、为产品提案制作高质量动态效果演示。\n局限：需要一些基础的视频剪辑和特效知识。',
+   tags:['运动刷','局部重绘','专业视频'],
+   radar:{交互创新度:5,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'中等适配','原型设计':'中等适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'弱适配'}},
+
+  {id:'suno',name:'Suno',domain:'suno.com',emoji:'🎵',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'已测试',
+   tagline:'旋律编排 · 流媒体级音质',
+   what:'音乐生成工具，歌词生成 Agent、旋律合成 Agent、人声渲染 Agent 协同，支持定义歌词和乐句结构（Intro/Chorus），输出完整歌曲。',
+   howFlow:'风格/歌词输入→旋律生成→人声渲染→结构延伸',
+   howType:'多模态生成型',
+   howMechanism:'歌词生成 Agent、旋律合成 Agent、人声渲染 Agent 协同工作。旋律的动机（Motif）在整首歌中保持一致，支持 Extend 功能延续旋律。',
+   howTrigger:'被动响应（风格/歌词描述）',
+   howOutput:'完整音乐曲目（流媒体级）',
+   howOperable:'支持歌曲续写和简单的风格调整，但无法拆解独立音轨',
+   howInnovation:'支持定义歌曲完整结构（Intro/Verse/Chorus），AI 音乐创作门槛突破',
+   steps:[
+     {actor:'人',text:'输入歌词及"悠扬、岭南传统、现代融合"风格（无介入）'},
+     {actor:'AI',text:'生成两首时长 30 秒的音乐片段（并行产出）'},
+     {actor:'人',text:'选择其中一首点击"Extend"按钮（节奏交接点）'},
+     {actor:'AI',text:'延续前一段的旋律动机生成下一段落（逻辑延伸）'},
+     {actor:'人',text:'判断乐器音色和节奏是否匹配视频剪辑点（感官判断）'},
+     {actor:'人',text:'下载完整音轨并在后期软件中混音（最终交付）'}
+   ],
+   scene:'背景音乐、内容创作配乐、原型演示。\n设计师场景：为服务流程视频配乐、为 App 生成专属背景音/反馈音。\n局限：无法拆解独立音轨，后期混音需借助 DAW。',
+   tags:['音乐生成','旋律连贯','配乐'],
+   radar:{交互创新度:4,输出可操作性:3,Agent协作复杂度:4,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'不适用','原型设计':'中等适配','竞品分析':'不适用','可用性测试':'弱适配','迭代优化':'不适用'}},
+
+  {id:'udio',name:'Udio',domain:'udio.com',emoji:'🎶',subcat:'视频与音乐生成型',cat:'内容生成型',tested:'未测试',
+   tagline:'高保真专业级音轨 · 音乐人灵感创作',
+   what:'高保真 AI 音乐生成工具，多阶段音频生成模型，将 Prompt 转化为专业级音轨，主打音乐人灵感创作和商业配乐。',
+   howFlow:'Prompt输入→多阶段音频合成→专业级音轨输出',
+   howType:'多模态生成型',
+   howMechanism:'多阶段音频生成模型，生成质量比 Suno 更接近专业录音室标准，适合音乐人使用。',
+   howTrigger:'被动响应（Prompt/风格描述）',
+   howOutput:'专业级音轨文件',
+   howOperable:'输出高品质音轨，但后期编辑需专业 DAW',
+   howInnovation:'专业录音室级别的 AI 音乐输出，更贴近商业配乐标准',
+   steps:[
+     {actor:'人',text:'输入风格和情感描述（无介入）'},
+     {actor:'AI',text:'多阶段合成生成专业级音轨（高质量生成）'},
+     {actor:'人',text:'审阅音轨品质和风格匹配度（质量验证）'},
+     {actor:'人',text:'下载并在 DAW 中进行专业后期（深度创作）'}
+   ],
+   scene:'音乐人灵感创作、商业配乐、游戏音效。\n设计师场景：为高品质品牌视频生成专业配乐、制作精品设计作品集的背景音乐。',
+   tags:['专业音轨','商业配乐','高保真'],
+   radar:null,
+   matrix:{'用户研究':'不适用','原型设计':'弱适配','竞品分析':'不适用','可用性测试':'不适用','迭代优化':'不适用'}}
+];
+
+// Merge generate tools into main TOOLS array
+TOOLS.push(...GENERATE_TOOLS);
+
+const SUBCATS_G = ['文本生成型','图像生成型','UI / 线框图生成型','代码与逻辑生成','视频与音乐生成型'];
+const SUBCAT_LABELS_G = {
+  '文本生成型':'你的"外脑"和文案管家，负责处理所有文字逻辑',
+  '图像生成型':'你的"神笔马良"，把文字描述瞬间变成高精度的视觉稿',
+  'UI / 线框图生成型':'你的"初级设计师"，直接吐出可以编辑的图层和代码组件',
+  '代码与逻辑生成':'你的"编程领航员"，看着你写代码，帮你把剩下的写完',
+  '视频与音乐生成型':'你的"虚拟制片厂"，一句话拍电影、写整首歌曲'
+};
+
+// ── Section pane switcher for generate section ──
+function switchGenSecPane(tabEl, paneId){
+  const bar=tabEl.closest('.sec-nav-tabs');
+  bar.querySelectorAll('.sec-nav-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  ['g-sec-pane-tools','g-sec-pane-how','g-sec-pane-scene'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList[id===paneId?'add':'remove']('active');
+  });
+}
+
+// ── How tab switcher for generate section ──
+function switchGenHowTab(el, panelId){
+  el.closest('.how-tabs').querySelectorAll('.how-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['g-how-flow','g-how-steps','g-how-table'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display=id===panelId?'block':'none';
+  });
+}
+
+// ── Render generate tool cards ──
+function renderGenerate(){
+  const container=document.getElementById('g-tool-area');
+  if(!container) return;
+  let html='';
+  SUBCATS_G.forEach(subcat=>{
+    const tools=TOOLS.filter(t=>t.subcat===subcat&&t.cat==='内容生成型');
+    html+=`<div class="subcat-row">
+      <div class="subcat-divider"></div><div class="subcat-label">${subcat}</div>
+      <div class="subcat-oneliner">${SUBCAT_LABELS_G[subcat]||''}</div>
+      <div class="namecard-grid" id="nc-grid-g-${subcat.replace(/[\/\s]/g,'_')}">
+        ${tools.map(t=>renderNamecard(t)).join('')}
+      </div>
+      <div class="detail-panel" id="dp-${subcat.replace(/\//g,'_')}"></div>
+    </div>`;
+  });
+  container.innerHTML=html;
+  // bind drags
+  document.querySelectorAll('#g-tool-area .namecard').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragging=true;
+      e.dataTransfer.setData('toolId',card.dataset.id);
+      document.getElementById('dropZone').classList.add('visible');
+    });
+    card.addEventListener('dragend',()=>{
+      dragging=false;
+      document.getElementById('dropZone').classList.remove('visible');
+    });
+  });
+}
+
+// ── Build collab timeline for generate ──
+function buildGenCollabTimeline(){
+  const gt=TOOLS.filter(t=>t.cat==='内容生成型'&&t.steps&&t.steps.length);
+  const container=document.getElementById('g-collab-timeline');
+  if(!container) return;
+  let html='';
+  gt.forEach(t=>{
+    const total=t.steps.length;
+    let segs='';
+    t.steps.forEach((step,i)=>{
+      const cls=step.actor==='AI'?'ct-ai':step.actor.includes('+')&&step.actor.includes('AI')?'ct-both':'ct-human';
+      const left=i*(100/total);
+      const width=100/total;
+      segs+=`<div class="ct-seg ${cls}" style="left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;" title="${step.actor}: ${step.text}">${step.actor}</div>`;
+    });
+    html+=`<div class="ct-row">
+      <div class="ct-tool">${t.emoji} ${t.name}</div>
+      <div class="ct-track">${segs}</div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+// ── Build how table for generate ──
+function buildGenHowTable(){
+  const gt=TOOLS.filter(t=>t.cat==='内容生成型');
+  const tbody=document.getElementById('g-how-table-body');
+  if(!tbody) return;
+  tbody.innerHTML=gt.map(t=>`<tr>
+    <td>${t.emoji} ${t.name}</td>
+    <td>${t.howTrigger||'-'}</td>
+    <td style="font-size:12px">${t.howFlow}</td>
+    <td>${t.howOutput||'-'}</td>
+    <td>${t.howOperable||'-'}</td>
+    <td style="font-size:12px">${t.howInnovation||'-'}</td>
+  </tr>`).join('');
+}
+
+// ── Build matrix for generate ──
+function buildGenMatrix(){
+  const gt=TOOLS.filter(t=>t.cat==='内容生成型');
+  const container=document.getElementById('g-matrix');
+  if(!container) return;
+  const cellMap={'强适配':'mx-strong 强','中等适配':'mx-mid 中','弱适配':'mx-weak 弱','不适用':'mx-none -'};
+  container.innerHTML=gt.map(t=>{
+    const cells=MATRIX_STAGES.map(stage=>{
+      const val=t.matrix[stage]||'不适用';
+      const[cls,label]=(cellMap[val]||'mx-none -').split(' ');
+      return `<div class="mx-cell ${cls}">${label}</div>`;
+    }).join('');
+    return `<div class="mx-row">
+      <div class="mx-tool">${t.emoji} ${t.name}</div>
+      ${cells}
+    </div>`;
+  }).join('');
+}
+
+// ── Build radar charts for generate (radar only, no bars) ──
+function buildGenRadarCharts(){
+  const gt=TOOLS.filter(t=>t.cat==='内容生成型'&&t.radar);
+  const container=document.getElementById('g-radar-grid');
+  if(!container||!window.Chart) return;
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  const colors=[
+    ['rgba(77,159,255,0.15)','rgba(77,159,255,0.7)','rgba(77,159,255,1)'],
+    ['rgba(167,139,250,0.15)','rgba(167,139,250,0.7)','rgba(167,139,250,1)'],
+    ['rgba(251,146,60,0.15)','rgba(251,146,60,0.7)','rgba(251,146,60,1)'],
+    ['rgba(52,211,153,0.15)','rgba(52,211,153,0.7)','rgba(52,211,153,1)'],
+  ];
+  const subcatOrder=['文本生成型','图像生成型','UI / 线框图生成型','代码与逻辑生成','视频与音乐生成型'];
+  container.innerHTML=gt.map(t=>`
+    <div class="radar-card">
+      <div class="radar-card-name">${t.emoji} ${t.name}</div>
+      <canvas id="g-radar-${t.id}" width="200" height="200"></canvas>
+    </div>`).join('');
+  gt.forEach(t=>{
+    const ctx=document.getElementById(`g-radar-${t.id}`)?.getContext('2d');
+    if(!ctx) return;
+    const ci=subcatOrder.indexOf(t.subcat)%colors.length;
+    const[bg,border,point]=colors[ci<0?0:ci];
+    new Chart(ctx,{
+      type:'radar',
+      data:{
+        labels:dims,
+        datasets:[{
+          data:dims.map(d=>t.radar[d]||0),
+          backgroundColor:bg,
+          borderColor:border,
+          borderWidth:1.5,
+          pointBackgroundColor:point,
+          pointRadius:3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+          min:0,max:5,ticks:{display:false,stepSize:1},
+          grid:{color:'rgba(255,255,255,0.06)'},
+          angleLines:{color:'rgba(255,255,255,0.06)'},
+          pointLabels:{color:'#8888aa',font:{size:10,family:"'Noto Sans SC',sans-serif"}}
+        }}
+      }
+    });
+  });
+}
+
+const SUBCATS_U = ['搜索问答型','文档分析型','总结归纳型','结构拆解与分析型'];
+const SUBCAT_LABELS = {
+  '搜索问答型':'用户带着问题来，工具从外部信息源中找答案，终点是用户"理解了这个问题的答案"',
+  '文档分析型':'用户先上传指定文档，再围绕该文档提问、总结和定位——信息范围锁定在用户提供的材料内',
+  '总结归纳型':'处理音视频/会议等非结构化内容，将其转化为结构化的可检索记录',
+  '结构拆解与分析型':'帮助用户发现信息之间的关系，呈现知识图谱、研究趋势或数据规律'
+};
+const MATRIX_STAGES = ['用户研究','原型设计','竞品分析','可用性测试','迭代优化'];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let store = {};
+try{store=JSON.parse(localStorage.getItem('aiv2-store')||'{}');}catch(e){}
+function saveStore(){try{localStorage.setItem('aiv2-store',JSON.stringify(store));}catch(e){}}
+
+let activeDetailId = null;
+let compareList = []; // array of tool ids
+let currentExpId = null;
+let expModalImages = [];
+let selectedStages = [];
+let dragging = false;
+
+// ═══════════════════════════════════════════════════
+// RENDER TOOLS
+// ═══════════════════════════════════════════════════
+function getLogo(domain){return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;}
+
+function handleMindmapUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=document.getElementById('mindmapImg');
+    const placeholder=document.getElementById('mindmapPlaceholder');
+    img.src=ev.target.result;
+    img.style.display='block';
+    placeholder.style.display='none';
+    document.getElementById('mindmapUploadZone').style.border='none';
+    document.getElementById('mindmapUploadZone').style.background='transparent';
+    document.getElementById('mindmapUploadZone').style.padding='0';
+    document.getElementById('mindmapUploadZone').style.minHeight='unset';
+  };
+  r.readAsDataURL(file);
+}
+
+function renderUnderstand(){
+  const container = document.getElementById('u-tool-area');
+  let html = '';
+  SUBCATS_U.forEach(subcat=>{
+    const tools = TOOLS.filter(t=>t.subcat===subcat);
+    html+=`<div class="subcat-row">
+      <div class="subcat-divider"></div><div class="subcat-label">${subcat}</div>
+      <div class="subcat-oneliner">${SUBCAT_LABELS[subcat]||''}</div>
+      <div class="namecard-grid" id="nc-grid-${subcat.replace(/\//g,'_')}">
+        ${tools.map(t=>renderNamecard(t)).join('')}
+      </div>
+      <div class="detail-panel" id="dp-${subcat.replace(/\//g,'_')}"></div>
+    </div>`;
+  });
+  container.innerHTML = html;
+
+  // bind drags
+  document.querySelectorAll('.namecard').forEach(card=>{
+    card.addEventListener('dragstart', e=>{
+      dragging=true;
+      e.dataTransfer.setData('toolId', card.dataset.id);
+      document.getElementById('dropZone').classList.add('visible');
+    });
+    card.addEventListener('dragend', ()=>{
+      dragging=false;
+      document.getElementById('dropZone').classList.remove('visible');
+    });
+  });
+}
+
+function renderNamecard(t){
+  const inCompare = compareList.includes(t.id);
+  const bubbles = t.tagline.split('·').map(s=>s.trim()).filter(Boolean).map(s=>`<span class="nc-tagline-bubble">${s}</span>`).join('');
+  return `<div class="namecard" id="nc-${t.id}" data-id="${t.id}" draggable="true" onclick="toggleDetail('${t.id}')">
+    <span class="nc-drag" title="拖到右侧加入对比">⋮⋮</span>
+    <div class="nc-logo-wrap">
+      <img src="${getLogo(t.domain)}" onload="this.style.opacity=1" style="width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .2s" alt="${t.name}">
+    </div>
+    <div class="nc-name">${t.name}</div>
+    <div class="nc-url">${t.domain}</div>
+    <div class="nc-tagline">${bubbles}</div>
+    <div class="nc-compare-btn" onclick="event.stopPropagation();addToCompare('${t.id}')" title="加入对比">＋</div>
+  </div>`;
+}
+
+// ── Detail right-tab switcher ──
+function switchDrTab(tabEl, paneId){
+  const bar = tabEl.closest('.dr-tab-bar');
+  bar.querySelectorAll('.dr-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  const right = bar.closest('.detail-right');
+  right.querySelectorAll('.dr-pane').forEach(p=>p.classList.remove('active'));
+  const pane = document.getElementById(paneId);
+  if(pane) pane.classList.add('active');
+}
+
+// ── Section nav tab switcher (是什么 / 怎么工作 / 场景) ──
+function switchSecPane(tabEl, paneId){
+  const bar = tabEl.closest('.sec-nav-tabs');
+  bar.querySelectorAll('.sec-nav-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  ['sec-pane-tools','sec-pane-how','sec-pane-scene'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList[id===paneId?'add':'remove']('active');
+  });
+}
+
+// ── Build collab steps HTML for detail panel (comic style) ──
+function buildCollabStepsHtml(t){
+  if(!t.steps||!t.steps.length) return '<div style="color:var(--dimmer);font-size:12px">暂无协作步骤数据</div>';
+  return '<div class="dp-collab-comic">'+t.steps.map((step,i)=>{
+    const isAI = step.actor==='AI';
+    const isBoth = step.actor.includes('+')&&step.actor.includes('AI');
+    const actorType = isAI?'ai':isBoth?'both':'human';
+    const emoji = isAI?'🤖':isBoth?'🔄':'👤';
+    const reverse = isAI?'':' reverse';
+    const text = step.text.length>60?step.text.substring(0,60)+'...':step.text;
+    return `<div class="dp-comic-panel${reverse}">
+      <div class="dp-comic-avatar ${actorType}">${emoji}</div>
+      <div class="dp-comic-bubble ${actorType}">
+        <div class="dp-comic-label">${step.actor}</div>
+        ${text}
+      </div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// ── Build radar bars HTML for detail panel ──
+function buildRadarBarsHtml(t){
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  if(!t.radar) return '<div style="color:var(--dimmer);font-size:12px">暂无雷达图数据</div>';
+  return dims.map(d=>{
+    const v=t.radar[d]||0;
+    return `<div class="dp-radar-row">
+      <div class="dp-radar-label">${d}</div>
+      <div class="dp-radar-track"><div class="dp-radar-fill" style="width:${v/5*100}%"></div></div>
+      <div class="dp-radar-val">${v}/5</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Build mini radar chart for detail panel ──
+function buildDetailRadar(id){
+  const t=TOOLS.find(x=>x.id===id);
+  if(!t||!t.radar) return;
+  const canvas=document.getElementById(`dp-radar-canvas-${id}`);
+  if(!canvas||!window.Chart) return;
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  // destroy old if exists
+  if(canvas._chartInst) canvas._chartInst.destroy();
+  canvas._chartInst = new Chart(canvas.getContext('2d'),{
+    type:'radar',
+    data:{
+      labels:dims,
+      datasets:[{
+        data:dims.map(d=>t.radar[d]||0),
+        backgroundColor:'rgba(77,159,255,0.15)',
+        borderColor:'rgba(77,159,255,0.7)',
+        borderWidth:1.5,
+        pointBackgroundColor:'rgba(77,159,255,1)',
+        pointRadius:3
+      }]
+    },
+    options:{
+      responsive:false,
+      plugins:{legend:{display:false}},
+      scales:{r:{
+        min:0,max:5,ticks:{display:false,stepSize:1},
+        grid:{color:'rgba(255,255,255,0.06)'},
+        angleLines:{color:'rgba(255,255,255,0.06)'},
+        pointLabels:{color:'#8888aa',font:{size:9,family:"'Noto Sans SC',sans-serif"}}
+      }}
+    }
+  });
+}
+
+function toggleDetail(id){
+  const t = TOOLS.find(x=>x.id===id);
+  if(!t) return;
+  const subcat = t.subcat.replace(/\//g,'_');
+  const panel = document.getElementById(`dp-${subcat}`);
+
+  if(activeDetailId===id){
+    panel.classList.remove('open');
+    panel.innerHTML='';
+    activeDetailId=null;
+    document.getElementById(`nc-${id}`)?.classList.remove('active');
+    return;
+  }
+  if(activeDetailId){
+    const prev = TOOLS.find(x=>x.id===activeDetailId);
+    if(prev){
+      const prevSubcat = prev.subcat.replace(/\//g,'_');
+      const prevPanel = document.getElementById(`dp-${prevSubcat}`);
+      if(prevPanel){prevPanel.classList.remove('open');prevPanel.innerHTML='';}
+    }
+    document.querySelectorAll('.namecard.active').forEach(c=>c.classList.remove('active'));
+  }
+  activeDetailId = id;
+  document.getElementById(`nc-${id}`)?.classList.add('active');
+
+  const saved = store[id]||{};
+  const screenshots = saved.screenshots||[];
+  const expText = saved.experience||'';
+  const expImgs = saved.expImages||[];
+
+  panel.innerHTML = `
+    <div class="detail-left">
+      <button class="dp-close" onclick="toggleDetail('${id}')">✕</button>
+      <div class="dp-logo">
+        <img src="${getLogo(t.domain)}" onload="this.classList.add('loaded')" alt="">
+      </div>
+      <div class="dp-name">${t.name}</div>
+      <div class="dp-domain">${t.domain}</div>
+      <div class="dp-tagline dp-tagline-orange">${t.tagline.split('·').map(s=>s.trim()).join('<br>')}</div>
+      <div class="dp-section-title">是什么</div>
+      <div class="dp-text">${t.what}</div>
+      <div class="dp-section-title">怎么工作</div>
+      <div class="dp-text">
+        <div class="dp-flow">${t.howFlow.split('→').map((step,i,arr)=>`<span class="dp-flow-step">${step.trim()}</span>${i<arr.length-1?'<span class="dp-flow-arrow">→</span>':''}`).join('')}</div>
+        <span style="color:var(--dimmer);font-size:12px">${t.howType}</span><br><br>${t.howMechanism}
+      </div>
+      ${expText||expImgs.length?`<div class="dp-section-title">使用体验记录</div>
+      <div class="saved-exp show">${expText?`<p>${expText}</p>`:''}<div class="saved-exp-imgs">${expImgs.map(i=>`<img src="${i}">`).join('')}</div></div>`:''}
+    </div>
+    <div class="detail-right" style="padding:24px;display:flex;flex-direction:column;overflow:hidden;">
+      <!-- Tab bar -->
+      <div class="dr-tab-bar">
+        <div class="dr-tab active" onclick="switchDrTab(this,'dr-pane-ss-${id}')">关键界面</div>
+        <div class="dr-tab" onclick="switchDrTab(this,'dr-pane-collab-${id}')">人机协作图谱</div>
+        <div class="dr-tab" onclick="switchDrTab(this,'dr-pane-radar-${id}')">五维雷达图</div>
+      </div>
+      <!-- Pane 1: Screenshots -->
+      <div class="dr-pane active" id="dr-pane-ss-${id}">
+        <div class="screenshot-upload">
+          <input type="file" accept="image/*" multiple id="ss-input-${id}" onchange="handleScreenshot(event,'${id}')" style="display:none!important">
+          <label for="ss-input-${id}">上传截图</label>
+          <p>📸 点击上传关键页面截图<br><span style="color:var(--dimmer);font-size:11px">支持多张，本地保存</span></p>
+        </div>
+        <div class="screenshot-preview-grid" id="ss-${id}">
+          ${screenshots.map(s=>`<img src="${s}">`).join('')}
+        </div>
+      </div>
+      <!-- Pane 2: Collab steps -->
+      <div class="dr-pane" id="dr-pane-collab-${id}">
+        <div style="font-size:11px;color:var(--dimmer);margin-bottom:10px;letter-spacing:.06em;display:flex;gap:12px;flex-wrap:wrap">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(110,150,255,.7);margin-right:4px;vertical-align:middle"></span>人</span>
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(51,183,90,.7);margin-right:4px;vertical-align:middle"></span>AI</span>
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(192,132,252,.7);margin-right:4px;vertical-align:middle"></span>协同</span>
+        </div>
+        <div class="dp-collab-wrap">${buildCollabStepsHtml(t)}</div>
+      </div>
+      <!-- Pane 3: Radar -->
+      <div class="dr-pane" id="dr-pane-radar-${id}">
+        <div style="font-size:11px;color:var(--dimmer);margin-bottom:12px;letter-spacing:.06em">五维评估 · 满分 5 分</div>
+        <div style="display:flex;justify-content:center;padding:8px 0;">
+          <canvas id="dp-radar-canvas-${id}" width="260" height="260"></canvas>
+        </div>
+      </div>
+    </div>`;
+  // draw radar chart for detail panel after DOM insert
+  setTimeout(()=>buildDetailRadar(id), 50);
+  panel.classList.add('open');
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function handleScreenshot(e,id){
+  const files = Array.from(e.target.files);
+  files.forEach(file=>{
+    const r = new FileReader();
+    r.onload=ev=>{
+      const saved=store[id]||{};
+      const ss=saved.screenshots||[];
+      ss.push(ev.target.result);
+      store[id]={...saved,screenshots:ss};
+      saveStore();
+      const grid=document.getElementById(`ss-${id}`);
+      if(grid){const img=document.createElement('img');img.src=ev.target.result;grid.appendChild(img);}
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// HOW-IT-WORKS SECTIONS
+// ═══════════════════════════════════════════════════
+function switchHowTab(el,panelId){
+  el.closest('.how-tabs').querySelectorAll('.how-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['u-how-flow','u-how-steps','u-how-table'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display=id===panelId?'block':'none';
+  });
+}
+
+function buildCollabTimeline(){
+  const ut = TOOLS.filter(t=>t.cat==='理解支持型');
+  const container = document.getElementById('u-collab-timeline');
+  if(!container) return;
+  const trackW=100;
+  let html='';
+  ut.forEach(t=>{
+    const total=t.steps.length;
+    let segs='';
+    const segW=Math.floor(trackW/total);
+    t.steps.forEach((step,i)=>{
+      const cls=step.actor==='AI'?'ct-ai':step.actor.includes('+')&&step.actor.includes('AI')?'ct-both':'ct-human';
+      const left=i*(100/total);
+      const width=100/total;
+      segs+=`<div class="ct-seg ${cls}" style="left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;" title="${step.actor}: ${step.text}">${step.actor}</div>`;
+    });
+    html+=`<div class="ct-row">
+      <div class="ct-tool">${t.emoji} ${t.name}</div>
+      <div class="ct-track">${segs}</div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function buildHowTable(){
+  const ut = TOOLS.filter(t=>t.cat==='理解支持型');
+  const tbody = document.getElementById('u-how-table-body');
+  if(!tbody) return;
+  tbody.innerHTML = ut.map(t=>`<tr>
+    <td>${t.emoji} ${t.name}</td>
+    <td>${t.howTrigger||'-'}</td>
+    <td style="font-size:12px">${t.howFlow}</td>
+    <td>${t.howOutput||'-'}</td>
+    <td>${t.howOperable||'-'}</td>
+    <td style="font-size:12px">${t.howInnovation||'-'}</td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// MATRIX
+// ═══════════════════════════════════════════════════
+function buildMatrix(){
+  const ut = TOOLS.filter(t=>t.cat==='理解支持型');
+  const container = document.getElementById('u-matrix');
+  if(!container) return;
+  const cellMap={'强适配':'mx-strong 强','中等适配':'mx-mid 中','弱适配':'mx-weak 弱','不适用':'mx-none -'};
+  container.innerHTML = ut.map(t=>{
+    const cells = MATRIX_STAGES.map(stage=>{
+      const val = t.matrix[stage]||'不适用';
+      const [cls,label]=(cellMap[val]||'mx-none -').split(' ');
+      return `<div class="mx-cell ${cls}">${label}</div>`;
+    }).join('');
+    return `<div class="mx-row">
+      <div class="mx-tool">${t.emoji} ${t.name}</div>
+      ${cells}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// RADAR
+// ═══════════════════════════════════════════════════
+function buildRadarCharts(){
+  const ut = TOOLS.filter(t=>t.cat==='理解支持型');
+  const container = document.getElementById('u-radar-grid');
+  if(!container) return;
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  container.innerHTML = ut.map(t=>`
+    <div class="radar-card">
+      <div class="radar-card-name">${t.emoji} ${t.name}</div>
+      <canvas id="radar-${t.id}" width="200" height="200"></canvas>
+    </div>`).join('');
+
+  ut.forEach(t=>{
+    const ctx=document.getElementById(`radar-${t.id}`)?.getContext('2d');
+    if(!ctx) return;
+    new Chart(ctx,{
+      type:'radar',
+      data:{
+        labels:dims,
+        datasets:[{
+          data:dims.map(d=>t.radar[d]||0),
+          backgroundColor:'rgba(77,159,255,0.15)',
+          borderColor:'rgba(77,159,255,0.7)',
+          borderWidth:1.5,
+          pointBackgroundColor:'rgba(77,159,255,1)',
+          pointRadius:3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+          min:0,max:5,ticks:{display:false,stepSize:1},
+          grid:{color:'rgba(255,255,255,0.06)'},
+          angleLines:{color:'rgba(255,255,255,0.06)'},
+          pointLabels:{color:'#8888aa',font:{size:10,family:"'Noto Sans SC',sans-serif"}}
+        }}
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// TEST BADGE
+// ═══════════════════════════════════════════════════
+function toggleTest(id,badge){
+  const saved=store[id]||{};
+  const cur=saved.tested||TOOLS.find(t=>t.id===id)?.tested;
+  if(cur==='已测试'){
+    store[id]={...saved,tested:'未测试'};
+    badge.textContent='未测试';badge.className='nc-test untested';
+    saveStore();
+  } else {
+    store[id]={...saved,tested:'已测试'};
+    badge.textContent='已测试';badge.className='nc-test tested';
+    saveStore();
+    openExpModal(id);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// EXPERIENCE MODAL
+// ═══════════════════════════════════════════════════
+function openExpModal(id){
+  currentExpId=id;expModalImages=[];
+  const t=TOOLS.find(x=>x.id===id);
+  document.getElementById('expModalTitle').textContent=`上传使用体验 · ${t?.name||id}`;
+  const saved=store[id]||{};
+  document.getElementById('expText').value=saved.experience||'';
+  document.getElementById('expImgPreview').innerHTML=(saved.expImages||[]).map(i=>`<img src="${i}">`).join('');
+  expModalImages=[...(saved.expImages||[])];
+  document.getElementById('expModal').classList.add('open');
+}
+function closeExpModal(){document.getElementById('expModal').classList.remove('open');currentExpId=null;}
+document.getElementById('expImgInput').addEventListener('change',e=>{
+  Array.from(e.target.files).forEach(file=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      expModalImages.push(ev.target.result);
+      const p=document.getElementById('expImgPreview');
+      const img=document.createElement('img');img.src=ev.target.result;p.appendChild(img);
+    };
+    r.readAsDataURL(file);
+  });
+});
+function saveExp(){
+  if(!currentExpId) return;
+  const text=document.getElementById('expText').value.trim();
+  const saved=store[currentExpId]||{};
+  store[currentExpId]={...saved,experience:text,expImages:expModalImages};
+  saveStore();
+  closeExpModal();
+  // refresh detail if open
+  if(activeDetailId===currentExpId) toggleDetail(currentExpId), setTimeout(()=>toggleDetail(currentExpId),10);
+}
+document.getElementById('expModal').addEventListener('click',e=>{if(e.target===document.getElementById('expModal'))closeExpModal();});
+
+// ═══════════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════════
+function addToCompare(id, fromFly){
+  if(compareList.includes(id)) return;
+  compareList.push(id);
+  updateCompareCount();
+  if(!fromFly){
+    const card=document.getElementById(`nc-${id}`);
+    if(card) flyCardToDoc(card, id);
+  }
+}
+function flyCardToDoc(card,id){
+  const rect=card.getBoundingClientRect();
+  const iconRect=document.getElementById('compareIcon').getBoundingClientRect();
+  const fly=document.createElement('div');
+  fly.className='flying-card';
+  fly.style.left=rect.left+'px';
+  fly.style.top=rect.top+'px';
+  fly.style.width=rect.width+'px';
+  const t=TOOLS.find(x=>x.id===id);
+  fly.innerHTML=`${t.emoji} ${t.name}`;
+  fly.style.setProperty('--tx', (iconRect.left-rect.left)+'');
+  fly.style.setProperty('--ty', (iconRect.top-rect.top)+'');
+  document.body.appendChild(fly);
+  setTimeout(()=>fly.remove(),700);
+}
+function updateCompareCount(){
+  const el=document.getElementById('compareCount');
+  el.textContent=compareList.length;
+  el.style.display=compareList.length?'flex':'none';
+}
+function openCompareModal(){
+  if(compareList.length===0){alert('请先点击工具卡片右下角的 ＋ 按钮，或拖拽工具到右侧区域');return;}
+  const tools=compareList.map(id=>TOOLS.find(t=>t.id===id)).filter(Boolean);
+  const rows=[
+    ['工具名称',...tools.map(t=>`${t.emoji} ${t.name}`)],
+    ['子类别',...tools.map(t=>t.subcat)],
+    ['是什么',...tools.map(t=>t.what)],
+    ['触发方式',...tools.map(t=>t.howTrigger||'-')],
+    ['核心机制',...tools.map(t=>t.howType)],
+    ['输出形态',...tools.map(t=>t.howOutput||'-')],
+    ['最突出卖点',...tools.map(t=>t.tagline)],
+    ['交互创新度',...tools.map(t=>t.radar?.交互创新度+'/5'||'-')],
+    ['输出可操作性',...tools.map(t=>t.radar?.输出可操作性+'/5'||'-')],
+    ['用户门槛',...tools.map(t=>t.radar?.用户门槛+'/5'||'-')],
+  ];
+  const thead=`<tr>${['','...'].concat(tools.map((_,i)=>'')).slice(0,tools.length+1).map((_,i)=>i===0?'<th></th>':``).join('')}</tr>`;
+  let tableHtml=`<table class="cmi-table"><thead><tr><th>维度</th>${tools.map(t=>`<th>${t.name}</th>`).join('')}</tr></thead><tbody>`;
+  rows.forEach(row=>{
+    tableHtml+=`<tr>${row.map((cell,i)=>`<td>${cell}</td>`).join('')}</tr>`;
+  });
+  tableHtml+='</tbody></table>';
+  document.getElementById('compareTableWrap').innerHTML=tableHtml;
+  document.getElementById('compareModal').classList.add('open');
+}
+function closeCompareModal(){document.getElementById('compareModal').classList.remove('open');}
+function clearCompare(){compareList=[];updateCompareCount();closeCompareModal();}
+document.getElementById('compareModal').addEventListener('click',e=>{if(e.target===document.getElementById('compareModal'))closeCompareModal();});
+
+// drag to right edge
+document.getElementById('dropZone').addEventListener('dragover',e=>{e.preventDefault();});
+document.getElementById('dropZone').addEventListener('drop',e=>{
+  e.preventDefault();
+  const id=e.dataTransfer.getData('toolId');
+  if(id) addToCompare(id, true);
+  document.getElementById('dropZone').classList.remove('visible');
+});
+
+// ═══════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════
+function openSearch(){document.getElementById('searchPopup').classList.add('open');}
+function closeSearch(){document.getElementById('searchPopup').classList.remove('open');}
+document.getElementById('searchPopup').addEventListener('click',e=>{if(e.target===document.getElementById('searchPopup'))closeSearch();});
+
+function toggleStage(el,stage){
+  el.classList.toggle('sel');
+  if(el.classList.contains('sel')) selectedStages.push(stage);
+  else selectedStages=selectedStages.filter(s=>s!==stage);
+}
+
+async function doSearch(){
+  const query=document.getElementById('searchQuery').value.trim();
+  const stagesText=selectedStages.join('、');
+  const fullQuery=stagesText?`我目前处于${stagesText}阶段，${query||'哪款AI工具最适合我？'}`:query||'哪款AI工具最适合我？';
+  const area=document.getElementById('searchResultArea');
+  area.innerHTML='<div class="search-loading">🤔 AI 正在为你推荐最适合的工具……</div>';
+
+  const toolsSummary=TOOLS.filter(t=>t.cat==='理解支持型').map(t=>
+    `【${t.name}】子类:${t.subcat} 卖点:${t.tagline} 场景:${t.scene}`
+  ).join('\n');
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`你是一个AI工具推荐助手，帮助交互设计师找到最适合的AI工具。以下是可推荐的理解支持型工具列表：\n${toolsSummary}\n\n请根据用户的需求，推荐最适合的2-3个工具，并简要说明推荐理由。返回JSON格式：{"recommendations":[{"id":"工具id","name":"工具名","reason":"推荐理由（2句话内）"}]}，只返回JSON，不要其他内容。工具id必须从这些中选取：${TOOLS.filter(t=>t.cat==='理解支持型').map(t=>t.id).join(',')}`,
+        messages:[{role:'user',content:fullQuery}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content?.find(c=>c.type==='text')?.text||'[]';
+    let rec;
+    try{rec=JSON.parse(text.replace(/```json|```/g,'').trim()).recommendations;}catch(e){rec=[];}
+    if(!rec||!rec.length){area.innerHTML='<div class="search-loading">未能获取推荐，请稍后重试</div>';return;}
+    area.innerHTML=`<div class="search-result-title">AI 推荐结果 · 点击跳转到对应工具</div>`+
+      rec.map(r=>`<div class="search-result-item" onclick="jumpToTool('${r.id}');closeSearch()">
+        <div class="sri-name">${TOOLS.find(t=>t.id===r.id)?.emoji||''} ${r.name}</div>
+        <div class="sri-reason">${r.reason}</div>
+      </div>`).join('');
+  }catch(e){
+    area.innerHTML='<div class="search-loading">推荐服务暂时不可用，请直接浏览工具卡片</div>';
+  }
+}
+
+function jumpToTool(id){
+  const card=document.getElementById(`nc-${id}`);
+  if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.style.boxShadow='0 0 0 3px var(--accent)';setTimeout(()=>{card.style.boxShadow='';},2000);}
+}
+
+
+// ═══════════════════════════════════════════════════
+// DECIDE TOOLS DATA
+// ═══════════════════════════════════════════════════
+const DECIDE_TOOLS = [
+  // ── 推荐与排序型 ──
+  {id:'amazon-rec',name:'Amazon Recommendation',domain:'amazon.com',emoji:'🛒',subcat:'推荐与排序型',cat:'决策支持型',tested:'已测试',
+   tagline:'高精度个性化推荐 · 多目标优化 · 实时动态更新',
+   what:'电商个性化推荐系统，通过协同过滤 + 深度学习实时更新用户画像，同时对点击率与转化率进行多目标优化。',
+   howFlow:'用户行为采集→用户画像建模→多目标排序→推荐列表输出',
+   howType:'协同过滤型 多目标优化型',
+   howMechanism:'协同过滤 + 深度学习双路径，实时更新用户画像，同时优化点击率与转化率两个目标。',
+   howTrigger:'隐式触发（用户浏览/点击行为自动触发）',
+   howOutput:'个性化商品推荐列表',
+   howOperable:'直接影响购买决策，推荐结果即为可操作的选购清单',
+   howInnovation:'多目标优化平衡点击率与转化率，实时个性化无感推荐',
+   steps:[
+     {actor:'人',text:'用户浏览/点击商品，触发行为信号'},
+     {actor:'AI',text:'系统记录行为数据，持续更新用户画像'},
+     {actor:'AI',text:'分析用户兴趣模型，提取偏好特征'},
+     {actor:'AI',text:'生成个性化推荐列表，多目标排序'},
+     {actor:'人',text:'用户选择商品并购买，反馈信号优化下一轮推荐'}
+   ],
+   scene:'电商平台（Amazon/淘宝），解决信息过载 & 提升转化率。\n设计师场景：分析用户行为与偏好、用于电商策略分析、持续优化推荐效果。\n局限：交互形式较传统，黑盒推荐逻辑透明度低。',
+   tags:['协同过滤','多目标优化','实时推荐'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:5,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'强适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'netflix-rec',name:'Netflix Recommendation',domain:'netflix.com',emoji:'🎬',subcat:'推荐与排序型',cat:'决策支持型',tested:'已测试',
+   tagline:'内容理解+用户理解双路径 · 高匹配推荐 · 提升停留时长',
+   what:'流媒体内容推荐系统，内容理解与用户偏好建模双路径协同，强依赖标签体系 + embedding，持续学习观看历史、评分和停留行为。',
+   howFlow:'内容特征提取→用户偏好建模→双路径匹配→推荐排序',
+   howType:'双路径匹配型',
+   howMechanism:'内容理解 Agent 分析影视标签与语义，用户偏好建模 Agent 持续学习观看历史与评分，两路 embedding 匹配后排序输出。',
+   howTrigger:'隐式触发（观看/评分行为自动触发）',
+   howOutput:'高度匹配的个性化内容推荐',
+   howOperable:'直接影响用户观看选择，推荐结果即为可播放内容',
+   howInnovation:'内容与用户双 embedding 匹配，提升推荐精准度与用户停留时长',
+   steps:[
+     {actor:'人',text:'用户观看/评分内容，产生行为信号'},
+     {actor:'AI',text:'系统分析用户偏好模式与观看规律'},
+     {actor:'AI',text:'分析内容特征（标签/语义）建立内容画像'},
+     {actor:'AI',text:'双路径匹配推荐内容，排序输出'},
+     {actor:'人',text:'用户反馈（跳过/收藏）影响后续推荐'}
+   ],
+   scene:'流媒体平台，解决用户选择困难。\n设计师场景：用户研究与行为分析、迭代优化推荐策略。\n局限：推荐形式成熟固定，跨平台借鉴空间有限。',
+   tags:['双路径匹配','停留时长优化','embedding'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:5,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'spotify-rec',name:'Spotify Recommendation',domain:'spotify.com',emoji:'🎵',subcat:'推荐与排序型',cat:'决策支持型',tested:'已测试',
+   tagline:'音频特征分析 · 用户行为+内容双重建模 · 强沉浸式体验',
+   what:'音乐推荐系统，NLP（歌词）+ 音频信号分析 + embedding similarity 三管齐下，用户行为与内容特征双维度建模，提升沉浸式体验。',
+   howFlow:'音频特征提取→行为数据采集→embedding相似度计算→歌单生成',
+   howType:'音频感知型 双维建模型',
+   howMechanism:'NLP 分析歌词语义，音频信号分析提取旋律特征，结合用户行为 embedding 计算相似度，生成高匹配度推荐歌单。',
+   howTrigger:'隐式触发（播放/收藏行为自动触发）',
+   howOutput:'个性化推荐歌单（可直接播放）',
+   howOperable:'直接生成可消费内容，推荐即播放，操作性最强',
+   howInnovation:'音频特征 embedding 分析，从内容本身理解音乐风格，突破纯协同过滤局限',
+   steps:[
+     {actor:'人',text:'用户播放/收藏音乐，产生行为信号'},
+     {actor:'AI',text:'分析音频特征与用户行为，提取多维特征'},
+     {actor:'AI',text:'计算相似度（embedding），匹配候选曲目'},
+     {actor:'AI',text:'生成推荐歌单，自动播放'},
+     {actor:'人',text:'用户跳过/收藏反馈，优化下一轮推荐'}
+   ],
+   scene:'音乐平台，提升用户沉浸体验。\n设计师场景：分析内容消费行为规律、研究沉浸式体验设计策略。\n局限：音频特征分析黑盒，用户难以主动干预推荐逻辑。',
+   tags:['音频分析','embedding相似度','歌单推荐'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:5,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'弱适配','迭代优化':'强适配'}},
+
+  {id:'upwork-ai',name:'Upwork AI Matching',domain:'upwork.com',emoji:'💼',subcat:'推荐与排序型',cat:'决策支持型',tested:'已测试',
+   tagline:'双边精准匹配 · 技能+需求匹配 · 提高交易效率',
+   what:'自由职业者匹配系统，NLP + Matching + Ranking 三层架构，实现雇主与自由职业者的双边精准匹配。',
+   howFlow:'需求解析→候选人检索→技能匹配→排序推荐',
+   howType:'双边匹配型',
+   howMechanism:'NLP 解析雇主需求与自由职业者技能标签，Matching Agent 进行双边匹配，Ranking Agent 综合历史成功率、评分等维度排序输出。',
+   howTrigger:'被动响应（雇主发布需求后触发）',
+   howOutput:'推荐候选人列表（附技能匹配度）',
+   howOperable:'直接形成雇佣关系，推荐结果可立即发起沟通',
+   howInnovation:'双边匹配同时优化雇主满意度与自由职业者接单率',
+   steps:[
+     {actor:'人',text:'雇主发布项目需求，描述技能要求'},
+     {actor:'AI',text:'系统解析需求，提取技能标签'},
+     {actor:'AI',text:'匹配候选自由职业者，计算匹配度'},
+     {actor:'AI',text:'生成推荐列表，综合评分排序'},
+     {actor:'人',text:'雇主选择候选人并发起沟通'}
+   ],
+   scene:'招聘平台/自由职业平台。\n设计师场景：分析双边匹配系统的用户体验、研究技能标签体系设计策略。\n局限：需用户主动填写详细信息，冷启动问题明显。',
+   tags:['双边匹配','技能标签','人才推荐'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'弱适配','迭代优化':'强适配'}},
+
+  {id:'elicit',name:'Elicit',domain:'elicit.com',emoji:'🔬',subcat:'推荐与排序型',cat:'决策支持型',tested:'已测试',
+   tagline:'学术论文结构化分析 · 自动总结+引用支持 · 减少阅读成本',
+   what:'AI 研究辅助工具，通过问题驱动的论文分析，将用户问题转化为结构化学术检索，自动总结并提供引用支持。',
+   howFlow:'问题输入→Query理解→论文检索→相关度排序→结构化总结',
+   howType:'问题驱动型 结构化分析型',
+   howMechanism:'Query Understanding Agent 理解研究问题，Retrieval Agent 检索论文，Relevance Ranking Agent 排序，Summarization Agent 生成结构化摘要。',
+   howTrigger:'被动响应（研究问题输入）',
+   howOutput:'结构化论文摘要+排序结果',
+   howOperable:'提供总结与引用支持，但关键判断需人工参与',
+   howInnovation:'问题驱动的学术检索，将复杂文献研究转化为结构化问答',
+   steps:[
+     {actor:'人',text:'输入研究问题，定义分析目标'},
+     {actor:'AI',text:'检索相关学术论文，建立候选集'},
+     {actor:'AI',text:'按相关度筛选与排序，聚焦核心文献'},
+     {actor:'AI',text:'生成结构化总结与关键信息提取'},
+     {actor:'人',text:'用户判断总结质量，决定是否深入阅读原文'}
+   ],
+   scene:'电商描述、邮件营销、社媒运营（数据驱动场景）。\n设计师场景：学术调研快速筛选文献、为设计决策寻找研究依据。\n局限：需一定学术理解能力，非学术场景适配性低。',
+   tags:['学术检索','问题驱动','文献总结'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'中等适配'}},
+
+  // ── 分析对比型 ──
+  {id:'notion-ai-d',name:'Notion AI',domain:'notion.so',emoji:'📝',subcat:'分析对比型',cat:'决策支持型',tested:'已测试',
+   tagline:'深度嵌入工作流 · 文档生成与整理一体化 · 低门槛高效率',
+   what:'文档智能助手，以单 Agent 生成+修改为核心，深度嵌入知识管理工作流，感知文档上下文，直接生成可用内容。',
+   howFlow:'需求输入→LLM理解→Task Agent执行→文档内联输出',
+   howType:'上下文感知型 内联输出型',
+   howMechanism:'User 输入 → LLM Agent（理解+生成）→ Task Agent（总结/改写/提取）→ 直接输出至文档，与工作区无缝融合。',
+   howTrigger:'原位触发（选中文字右键调用）',
+   howOutput:'文档内联输出（可立即编辑）',
+   howOperable:'AI 输出直接出现在文档中，可立即编辑、拖拽重组',
+   howInnovation:'嵌入式 AI 原位触发，将智能辅助与文档编辑融为一体',
+   steps:[
+     {actor:'人',text:'输入写作/总结需求，定义任务目标'},
+     {actor:'AI',text:'理解需求并生成内容，插入当前文档'},
+     {actor:'人',text:'修改/调整 AI 生成的内容，做专业判断'},
+     {actor:'AI',text:'根据反馈继续优化，再次生成'},
+     {actor:'人',text:'确认并输出最终文档，完成协作'}
+   ],
+   scene:'知识管理/写作/项目管理。\n设计师场景：设计文档内直接总结用户反馈、在设计方案旁让 AI 分析优劣。\n局限：强依赖 Notion 平台，嵌入式 AI 较常见，差异化不强。',
+   tags:['文档嵌入','总结生成','知识管理'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'中等适配','竞品分析':'弱适配','可用性测试':'弱适配','迭代优化':'中等适配'}},
+
+  {id:'perplexity-d',name:'Perplexity AI',domain:'perplexity.ai',emoji:'🔍',subcat:'分析对比型',cat:'决策支持型',tested:'已测试',
+   tagline:'实时联网搜索 · 引用来源透明 · 问答+搜索融合',
+   what:'AI 搜索引擎，搜索与问答融合，实时检索并生成带引用的综合回答，支持多轮追问，引用来源完全透明可溯。',
+   howFlow:'问题理解→实时联网检索→内容筛选整合→引用式回答',
+   howType:'检索增强型 引用透明型',
+   howMechanism:'Retrieval Agent 实时搜索 → Ranking Agent 筛选高质来源 → LLM Agent 综合总结 → Citation Agent 标注引用，多 Agent 串行透明执行。',
+   howTrigger:'被动响应（问题输入）',
+   howOutput:'带引用角标的综合回答',
+   howOperable:'提供答案但需用户自行验证来源，引用可点击跳转原文',
+   howInnovation:'搜索+问答深度融合，引用来源气泡让信息溯源成为标准流程',
+   steps:[
+     {actor:'人',text:'输入研究问题，发起信息检索'},
+     {actor:'AI',text:'实时联网搜索多个来源，过程对用户透明'},
+     {actor:'AI',text:'筛选与整合内容，提炼核心信息'},
+     {actor:'AI',text:'生成带引用的综合答案，每个论点标注来源'},
+     {actor:'人',text:'追问细节或点击引用验证原始来源'}
+   ],
+   scene:'信息检索/学术/调研。\n设计师场景：竞品调研快速获取带来源的市场信息、为设计决策查找外部依据。\n局限：实时信息为主，深度分析依赖用户二次判断。',
+   tags:['实时检索','引用透明','多轮追问'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'强适配','原型设计':'不适用','竞品分析':'强适配','可用性测试':'不适用','迭代优化':'中等适配'}},
+
+  // ── 预测评估型 ──
+  {id:'ibm-watson',name:'IBM Watson Analytics',domain:'ibm.com',emoji:'🏛️',subcat:'预测评估型',cat:'决策支持型',tested:'已测试',
+   tagline:'自动化数据分析 · 从数据到预测一体化 · 降低建模门槛',
+   what:'企业级数据分析与预测平台，支持自然语言查询数据并生成洞察，从数据清洗到 ML 建模到可视化输出全链路一体化。',
+   howFlow:'自然语言输入→数据清洗→ML建模→可视化输出',
+   howType:'自然语言驱动型 全链路一体化型',
+   howMechanism:'NLP Agent 理解自然语言需求 → Data Processing Agent 清洗数据 → ML Prediction Agent 建模预测 → Visualization Agent 输出图表与结论。',
+   howTrigger:'被动响应（自然语言问题输入）',
+   howOutput:'预测结果+可视化图表+决策建议',
+   howOperable:'直接提供预测结果与决策支持，可视化输出可直接用于汇报',
+   howInnovation:'自然语言直接驱动数据分析，大幅降低企业数据建模门槛',
+   steps:[
+     {actor:'人',text:'上传数据集，提供原始数据'},
+     {actor:'人',text:'输入分析问题，定义分析目标'},
+     {actor:'AI',text:'自动数据清洗与特征工程，完成数据预处理'},
+     {actor:'AI',text:'ML 建模预测，生成趋势预测与可视化图表'},
+     {actor:'人',text:'解读预测结果并制定策略，完成最终决策'}
+   ],
+   scene:'企业数据分析、市场趋势预测、商业决策支持。\n设计师场景：分析用户行为数据趋势、为产品迭代优化提供数据依据。\n局限：需一定数据理解能力，面向企业场景，个人使用成本高。',
+   tags:['自然语言分析','ML预测','企业级'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'强适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'tableau-ai',name:'Tableau AI',domain:'tableau.com',emoji:'📊',subcat:'预测评估型',cat:'决策支持型',tested:'已测试',
+   tagline:'自然语言生成图表 · 数据洞察自动提取 · 可视化表达能力强',
+   what:'Tableau 的 AI 扩展功能，以自然语言问句驱动数据查询与可视化生成，自动提炼数据洞察，比传统 BI 工具更易上手。',
+   howFlow:'自然语言查询→数据库查询→洞察提炼→图表可视化',
+   howType:'自然语言可视化型',
+   howMechanism:'NLP Agent 解析查询 → Data Query Agent 查询数据库 → Insight Agent 提炼结论 → Visualization Agent 生成图表，以查询+可视化为主链路。',
+   howTrigger:'被动响应（自然语言问句输入）',
+   howOutput:'可视化图表+数据洞察摘要',
+   howOperable:'直接生成可视化结果，支持嵌入报告与持续追问',
+   howInnovation:'问句生成图表，将专业 BI 能力下沉到非技术用户',
+   steps:[
+     {actor:'人',text:'输入问题（如"用户增长趋势"），定义分析意图'},
+     {actor:'AI',text:'解析问题并查询对应数据，自动定位数据源'},
+     {actor:'AI',text:'自动生成可视化图表，提炼关键洞察'},
+     {actor:'人',text:'查看图表并基于结果提出新问题，追问深化'},
+     {actor:'AI',text:'持续更新分析结果，响应新问题'}
+   ],
+   scene:'商业分析、运营监控、数据报告。\n设计师场景：快速整理用户数据并生成可视化报告、分析市场数据支持竞品研究。\n局限：依赖数据结构，语境理解有限，非结构化数据处理能力弱。',
+   tags:['问句可视化','BI工具','数据洞察'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:3,上下文感知能力:3,用户门槛:4},
+   matrix:{'用户研究':'中等适配','原型设计':'不适用','竞品分析':'强适配','可用性测试':'弱适配','迭代优化':'强适配'}},
+
+  {id:'google-decision',name:'Google Decision AI',domain:'cloud.google.com',emoji:'🎯',subcat:'预测评估型',cat:'决策支持型',tested:'已测试',
+   tagline:'预测+决策一体化 · 自动输出最优策略 · 支持复杂变量优化',
+   what:'Google 提供的决策支持 AI 系统，综合多变量进行预测，自动输出最优策略，用于广告投放、用户增长和产品优化场景。',
+   howFlow:'目标设定→特征提取→多变量预测→最优策略输出',
+   howType:'多变量优化型',
+   howMechanism:'Feature Engineering Agent 提取关键变量 → Prediction Agent 预测各策略结果 → Optimization Agent 输出最优方案，预测与优化双 Agent 协同。',
+   howTrigger:'被动响应（业务目标输入）',
+   howOutput:'最优决策方案+预测结果',
+   howOperable:'直接输出优化决策，策略建议可直接执行',
+   howInnovation:'预测+决策一体化，将复杂多变量优化问题自动化处理',
+   steps:[
+     {actor:'人',text:'输入业务目标（转化率/ROI），定义优化方向'},
+     {actor:'AI',text:'分析历史数据，提取关键特征变量'},
+     {actor:'AI',text:'预测不同策略在各变量下的结果'},
+     {actor:'AI',text:'综合评估后输出最优策略方案'},
+     {actor:'人',text:'选择并执行推荐方案，监控效果'}
+   ],
+   scene:'广告投放、用户增长、产品优化。\n设计师场景：分析产品不同设计方案的预测效果、为迭代优化提供数据驱动的策略建议。\n局限：偏策略输入，需理解业务目标，非技术用户门槛较高。',
+   tags:['多变量优化','预测决策','策略输出'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'中等适配','原型设计':'不适用','竞品分析':'强适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'zest-ai',name:'Zest AI',domain:'zest.ai',emoji:'🏦',subcat:'预测评估型',cat:'决策支持型',tested:'已测试',
+   tagline:'实时风控决策 · 自动拦截欺诈 · 无感运行',
+   what:'金融风控与信用评估 AI 系统，帮助银行进行贷款风险判断，ML 风控模型+决策系统协同，基于用户信用与行为数据输出评分。',
+   howFlow:'用户数据输入→数据处理→风险建模→信用评分输出',
+   howType:'风险评估型',
+   howMechanism:'Data Processing Agent 清洗特征 → Risk Modeling Agent（ML）建立风险模型 → Decision Agent 输出信用评分与放贷建议，后台运行对用户无感。',
+   howTrigger:'被动响应（用户申请数据提交后触发）',
+   howOutput:'信用评分+风险等级+放贷建议',
+   howOperable:'直接用于贷款审批决策，边界情况需人工复核',
+   howInnovation:'实时 ML 风控，将复杂信用评估自动化，大幅提升审批效率',
+   steps:[
+     {actor:'人',text:'用户提交贷款申请，提供基础信息与信用数据'},
+     {actor:'AI',text:'系统处理数据，进行清洗与特征提取'},
+     {actor:'AI',text:'ML 模型分析信用风险，建立评分模型'},
+     {actor:'AI',text:'输出风险评分与决策建议（是否放贷）'},
+     {actor:'人',text:'人工审核复杂或边界情况，做最终决策'}
+   ],
+   scene:'银行贷款审批、信用评估、金融风控。\n设计师场景：研究金融服务信任设计、分析 AI 决策透明度对用户体验的影响。\n局限：偏后台模型，用户交互较少，透明度不足。',
+   tags:['信用评估','风险建模','金融风控'],
+   radar:{交互创新度:2,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'弱适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'stripe-radar',name:'Stripe Radar',domain:'stripe.com',emoji:'🛡️',subcat:'预测评估型',cat:'决策支持型',tested:'已测试',
+   tagline:'实时欺诈检测 · 自动化风险决策 · 无感安全防护',
+   what:'支付风控系统，通过 AI 识别欺诈交易并自动拦截，行为分析+欺诈识别+决策三 Agent 协同，实时交易行为分析，无感安全防护。',
+   howFlow:'交易数据输入→行为分析→异常模式识别→自动判断拦截',
+   howType:'实时风控型',
+   howMechanism:'Behavior Analysis Agent 分析交易行为 → Fraud Detection Agent 识别异常模式 → Decision Agent 自动判断（通过/拒绝），毫秒级响应。',
+   howTrigger:'隐式触发（用户发起支付自动触发）',
+   howOutput:'交易通过/拦截决策（自动执行）',
+   howOperable:'直接拦截或放行交易，人工只需复核异常情况',
+   howInnovation:'无感安全防护，AI 在支付流程中隐式运作，用户零感知',
+   steps:[
+     {actor:'人',text:'用户发起支付，无感触发风控系统'},
+     {actor:'AI',text:'系统实时分析交易行为与上下文'},
+     {actor:'AI',text:'判断风险等级，识别欺诈特征'},
+     {actor:'AI',text:'自动拦截高风险交易或放行低风险交易'},
+     {actor:'人',text:'人工复核被拦截的异常情况，做最终判断'}
+   ],
+   scene:'在线支付、跨境电商、金融安全。\n设计师场景：研究安全体验设计、分析如何在无感防护与用户体验之间取得平衡。\n局限：用户行为分析较间接，设计师直接使用场景有限。',
+   tags:['欺诈检测','实时拦截','支付安全'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:5},
+   matrix:{'用户研究':'弱适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  // ── 自动决策型 ──
+  {id:'google-smart-bid',name:'Google Ads Smart Bidding',domain:'ads.google.com',emoji:'💡',subcat:'自动决策型',cat:'决策支持型',tested:'已测试',
+   tagline:'自动竞价优化 · 基于转化目标调整策略 · 持续学习用户行为',
+   what:'数字广告自动竞价系统，数据收集+预测+竞价三 Agent 协同，基于用户行为与场景数据持续学习，自动优化广告投放效果。',
+   howFlow:'目标设定→行为数据采集→转化概率预测→自动竞价',
+   howType:'目标驱动型 自动化执行型',
+   howMechanism:'目标设定 → Data Collection Agent 收集用户行为 → Prediction Agent 预测各场景转化概率 → Bidding Agent 实时自动出价，持续学习优化。',
+   howTrigger:'主动配置（目标设定后自动持续运行）',
+   howOutput:'实时竞价策略+投放效果报告',
+   howOperable:'直接影响广告投放效果，用户只需设定目标即可',
+   howInnovation:'目标驱动自动竞价，将复杂广告投放策略完全自动化',
+   steps:[
+     {actor:'人',text:'设置投放目标（转化率/ROI），定义优化方向'},
+     {actor:'AI',text:'持续收集用户行为数据，构建实时信号'},
+     {actor:'AI',text:'预测各广告展示位的转化概率'},
+     {actor:'AI',text:'自动调整出价策略，实时执行'},
+     {actor:'人',text:'查看投放结果并调整整体策略方向'}
+   ],
+   scene:'数字广告投放、电商营销、用户增长。\n设计师场景：研究数据驱动的自动化决策流程设计、分析广告策略优化对用户体验的影响。\n局限：需基础广告知识，目标设定不当会导致优化方向偏差。',
+   tags:['自动竞价','目标驱动','广告优化'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'中等适配','原型设计':'不适用','竞品分析':'强适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'ai-trading',name:'AI Trading Algorithms',domain:'alpaca.markets',emoji:'📈',subcat:'自动决策型',cat:'决策支持型',tested:'已测试',
+   tagline:'自动化交易决策 · 高频实时响应 · 数据驱动策略执行',
+   what:'基于 AI 的自动交易系统，市场分析+预测+策略+执行全链路 Agent 协同，高频实时响应市场数据变化，自动完成买卖操作。',
+   howFlow:'市场数据采集→趋势分析→走势预测→策略生成→自动下单',
+   howType:'全链路自动化型',
+   howMechanism:'Market Analysis Agent → Prediction Agent → Strategy Agent → Execution Agent 全链路协同，无需人工干预即可完成完整交易流程。',
+   howTrigger:'自动触发（实时市场数据驱动）',
+   howOutput:'自动交易执行（买入/卖出）',
+   howOperable:'直接完成交易行为，人工仅需监控风险',
+   howInnovation:'分析+预测+策略+执行全链路 AI 闭环，人工介入程度最低',
+   steps:[
+     {actor:'AI',text:'实时采集市场行情数据，建立数据流'},
+     {actor:'AI',text:'分析市场趋势，识别价格变化模式'},
+     {actor:'AI',text:'预测未来走势，生成交易信号'},
+     {actor:'AI',text:'自动执行买卖操作，完成交易'},
+     {actor:'人',text:'用户监控系统运行并控制风险，必要时停止系统'}
+   ],
+   scene:'股票市场、量化交易、金融投资。\n设计师场景：研究全自动 AI 决策系统的信任设计、分析高频交易系统中人机控制权分配问题。\n局限：专业性强，理解门槛极高，普通用户难以使用。',
+   tags:['量化交易','全链路自动化','高频执行'],
+   radar:{交互创新度:3,输出可操作性:5,Agent协作复杂度:5,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'弱适配','原型设计':'不适用','竞品分析':'中等适配','可用性测试':'不适用','迭代优化':'强适配'}},
+
+  {id:'optimizely',name:'Optimizely',domain:'optimizely.com',emoji:'⚗️',subcat:'自动决策型',cat:'决策支持型',tested:'已测试',
+   tagline:'自动A/B测试 · 数据驱动优化设计 · 快速验证方案',
+   what:'数字产品优化平台，支持 A/B 测试和自动优化用户体验，实验+分析+决策三 Agent 协同，直接输出最优设计方案。',
+   howFlow:'实验设计→用户分组→数据收集→统计分析→最优方案输出',
+   howType:'实验驱动型',
+   howMechanism:'Experiment Agent 分组 → Data Tracking Agent 收集行为数据 → Evaluation Agent 统计分析 → Decision Agent 输出最优方案，闭环自动执行。',
+   howTrigger:'主动配置（实验设定后自动运行）',
+   howOutput:'最优设计方案+统计显著性报告',
+   howOperable:'直接输出最优方案，数据报告可直接用于设计决策',
+   howInnovation:'实验驱动交互，将 A/B 测试从手动分析提升为自动化决策',
+   steps:[
+     {actor:'人',text:'设计多个设计版本，定义实验方案'},
+     {actor:'AI',text:'自动分配用户流量，随机分组'},
+     {actor:'AI',text:'持续收集用户行为数据'},
+     {actor:'AI',text:'统计分析实验结果，评估各版本效果'},
+     {actor:'人',text:'基于数据选择最优方案，做最终决策'}
+   ],
+   scene:'网站优化、产品设计、用户体验提升。\n设计师场景：快速验证多个设计方案、以数据为依据做设计决策、持续优化转化率。\n局限：需理解实验逻辑，冷启动需要一定流量积累。',
+   tags:['A/B测试','实验驱动','方案验证'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:3,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'中等适配','竞品分析':'弱适配','可用性测试':'强适配','迭代优化':'强适配'}},
+
+  {id:'google-optimize',name:'Google Optimize',domain:'optimize.google.com',emoji:'🔧',subcat:'自动决策型',cat:'决策支持型',tested:'已测试',
+   tagline:'低门槛A/B测试 · 数据驱动页面优化 · Google生态深度集成',
+   what:'Google 推出的网站优化工具，通过 A/B 测试优化页面表现，与 Google Analytics 深度集成，操作简单易上手。',
+   howFlow:'实验设计→用户行为分析→效果评估→优化方案推荐',
+   howType:'实验评估型',
+   howMechanism:'创建实验 → Behavior Analysis Agent 分析用户行为 → Evaluation Agent 评估版本效果 → Recommendation Agent 输出优化方案，行为分析+评估为主链路。',
+   howTrigger:'主动配置（实验设定后自动运行）',
+   howOutput:'优化建议+实验结果报告',
+   howOperable:'提供优化建议，最终选择由人工决定',
+   howInnovation:'与 Google Analytics 深度集成，将页面优化与流量分析无缝打通',
+   steps:[
+     {actor:'人',text:'设计多个页面版本，制定测试方案'},
+     {actor:'AI',text:'随机分配用户流量，自动分组'},
+     {actor:'AI',text:'收集用户点击、停留等行为数据'},
+     {actor:'AI',text:'分析不同版本效果，输出统计结果'},
+     {actor:'人',text:'基于结果选择最优方案，决定最终设计'}
+   ],
+   scene:'网站运营、营销优化、转化率提升。\n设计师场景：优化页面转化设计、验证不同交互方案效果、以数据驱动用户体验迭代。\n局限：传统 A/B 测试逻辑，功能相对基础。',
+   tags:['A/B测试','Google生态','转化优化'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'中等适配','竞品分析':'弱适配','可用性测试':'强适配','迭代优化':'强适配'}}
+];
+
+TOOLS.push(...DECIDE_TOOLS);
+
+const SUBCATS_D = ['推荐与排序型','分析对比型','预测评估型','自动决策型'];
+const SUBCAT_LABELS_D = {
+  '推荐与排序型':'以用户行为与偏好为输入，自动排列最相关的内容或候选项，终点是用户面对一个更优质的选择集合',
+  '分析对比型':'帮助用户在多个选项或维度之间进行结构化比较，降低信息处理成本，终点是用户形成清晰判断',
+  '预测评估型':'以历史数据和当前信号为输入，通过 ML 建模预测未来结果，为决策提供概率依据',
+  '自动决策型':'在设定目标或规则后，AI 自动完成决策与执行闭环，人工仅需监控与边界干预'
+};
+
+function switchDecideSecPane(tabEl,paneId){
+  const bar=tabEl.closest('.sec-nav-tabs');
+  bar.querySelectorAll('.sec-nav-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  ['d-sec-pane-tools','d-sec-pane-how','d-sec-pane-scene'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList[id===paneId?'add':'remove']('active');
+  });
+}
+
+function switchDecideHowTab(el,panelId){
+  el.closest('.how-tabs').querySelectorAll('.how-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['d-how-flow','d-how-steps','d-how-table'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display=id===panelId?'block':'none';
+  });
+}
+
+function renderDecide(){
+  const container=document.getElementById('d-tool-area');
+  if(!container) return;
+  let html='';
+  SUBCATS_D.forEach(subcat=>{
+    const tools=TOOLS.filter(t=>t.subcat===subcat&&t.cat==='决策支持型');
+    html+=`<div class="subcat-row">
+      <div class="subcat-divider"></div><div class="subcat-label">${subcat}</div>
+      <div class="subcat-oneliner">${SUBCAT_LABELS_D[subcat]||''}</div>
+      <div class="namecard-grid" id="nc-grid-d-${subcat.replace(/[\/\s]/g,'_')}">
+        ${tools.map(t=>renderNamecard(t)).join('')}
+      </div>
+      <div class="detail-panel" id="dp-${subcat.replace(/\//g,'_')}"></div>
+    </div>`;
+  });
+  container.innerHTML=html;
+  document.querySelectorAll('#d-tool-area .namecard').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragging=true;
+      e.dataTransfer.setData('toolId',card.dataset.id);
+      document.getElementById('dropZone').classList.add('visible');
+    });
+    card.addEventListener('dragend',()=>{
+      dragging=false;
+      document.getElementById('dropZone').classList.remove('visible');
+    });
+  });
+}
+
+function buildDecideCollabTimeline(){
+  const dt=TOOLS.filter(t=>t.cat==='决策支持型'&&t.steps&&t.steps.length);
+  const container=document.getElementById('d-collab-timeline');
+  if(!container) return;
+  let html='';
+  dt.forEach(t=>{
+    const total=t.steps.length;
+    let segs='';
+    t.steps.forEach((step,i)=>{
+      const cls=step.actor==='AI'?'ct-ai':step.actor.includes('+')&&step.actor.includes('AI')?'ct-both':'ct-human';
+      const left=i*(100/total);
+      const width=100/total;
+      segs+=`<div class="ct-seg ${cls}" style="left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;" title="${step.actor}: ${step.text}">${step.actor}</div>`;
+    });
+    html+=`<div class="ct-row">
+      <div class="ct-tool">${t.emoji} ${t.name}</div>
+      <div class="ct-track">${segs}</div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function buildDecideHowTable(){
+  const dt=TOOLS.filter(t=>t.cat==='决策支持型');
+  const tbody=document.getElementById('d-how-table-body');
+  if(!tbody) return;
+  tbody.innerHTML=dt.map(t=>`<tr>
+    <td>${t.emoji} ${t.name}</td>
+    <td>${t.howTrigger||'-'}</td>
+    <td style="font-size:12px">${t.howFlow}</td>
+    <td>${t.howOutput||'-'}</td>
+    <td>${t.howOperable||'-'}</td>
+    <td style="font-size:12px">${t.howInnovation||'-'}</td>
+  </tr>`).join('');
+}
+
+function buildDecideMatrix(){
+  const dt=TOOLS.filter(t=>t.cat==='决策支持型');
+  const container=document.getElementById('d-matrix');
+  if(!container) return;
+  const cellMap={'强适配':'mx-strong 强','中等适配':'mx-mid 中','弱适配':'mx-weak 弱','不适用':'mx-none -'};
+  container.innerHTML=dt.map(t=>{
+    const cells=MATRIX_STAGES.map(stage=>{
+      const val=t.matrix[stage]||'不适用';
+      const[cls,label]=(cellMap[val]||'mx-none -').split(' ');
+      return `<div class="mx-cell ${cls}">${label}</div>`;
+    }).join('');
+    return `<div class="mx-row">
+      <div class="mx-tool">${t.emoji} ${t.name}</div>
+      ${cells}
+    </div>`;
+  }).join('');
+}
+
+function buildDecideRadarCharts(){
+  const dt=TOOLS.filter(t=>t.cat==='决策支持型'&&t.radar);
+  const container=document.getElementById('d-radar-grid');
+  if(!container||!window.Chart) return;
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  const colors=[
+    ['rgba(251,146,60,0.15)','rgba(251,146,60,0.7)','rgba(251,146,60,1)'],
+    ['rgba(251,191,36,0.15)','rgba(251,191,36,0.7)','rgba(251,191,36,1)'],
+    ['rgba(248,113,113,0.15)','rgba(248,113,113,0.7)','rgba(248,113,113,1)'],
+    ['rgba(167,139,250,0.15)','rgba(167,139,250,0.7)','rgba(167,139,250,1)'],
+  ];
+  const subcatOrder=['推荐与排序型','分析对比型','预测评估型','自动决策型'];
+  container.innerHTML=dt.map(t=>`
+    <div class="radar-card">
+      <div class="radar-card-name">${t.emoji} ${t.name}</div>
+      <canvas id="d-radar-${t.id}" width="200" height="200"></canvas>
+    </div>`).join('');
+  dt.forEach(t=>{
+    const ctx=document.getElementById(`d-radar-${t.id}`)?.getContext('2d');
+    if(!ctx) return;
+    const ci=subcatOrder.indexOf(t.subcat)%colors.length;
+    const[bg,border,point]=colors[ci<0?0:ci];
+    new Chart(ctx,{
+      type:'radar',
+      data:{
+        labels:dims,
+        datasets:[{
+          data:dims.map(d=>t.radar[d]||0),
+          backgroundColor:bg,borderColor:border,borderWidth:1.5,
+          pointBackgroundColor:point,pointRadius:3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+          min:0,max:5,ticks:{display:false,stepSize:1},
+          grid:{color:'rgba(255,255,255,0.06)'},
+          angleLines:{color:'rgba(255,255,255,0.06)'},
+          pointLabels:{color:'#8888aa',font:{size:10,family:"'Noto Sans SC',sans-serif"}}
+        }}
+      }
+    });
+  });
+}
+
+
+// ═══════════════════════════════════════════════════
+// COLLABORATE TOOLS DATA
+// ═══════════════════════════════════════════════════
+const COLLAB_TOOLS = [
+  // ── 项目/工作管理平台内嵌型 ──
+  {id:'asana-ai',name:'Asana AI Teammates',domain:'asana.com',emoji:'🎯',subcat:'项目/工作管理平台内嵌型',cat:'任务协作型',tested:'已测试',
+   tagline:'嵌入任务流 · 识别风险点 · 生成推进项',
+   what:'Asana 把它定位成"面向团队的协作型智能体"，可以进入项目流协助推进任务，通过阶段性检查点让团队看到进展，不是普通聊天助手而是 AI 队友。',
+   howFlow:'项目上下文读取→风险识别→推进建议生成→阶段摘要沉淀',
+   howType:'项目嵌入型 上下文感知型',
+   howMechanism:'核心是 AI Teammates + Asana 项目上下文 + checkpoints。依赖项目、目标、任务关系和团队上下文工作，可被放进共享项目中协助推进，并通过阶段性检查点透明化执行进度。',
+   howTrigger:'原位触发（项目内被调用或自动感知）',
+   howOutput:'任务提醒/推进建议/阶段摘要',
+   howOperable:'结果多为提醒、建议、总结，可直接转为行动项',
+   howInnovation:'AI 进入项目推进链路，以队友角色参与而非旁观问答',
+   steps:[
+     {actor:'人',text:'建立研究/设计/评审任务，搭建项目结构'},
+     {actor:'AI',text:'读取项目上下文，识别风险与阻塞点'},
+     {actor:'AI',text:'生成提醒、下一步建议和阶段摘要'},
+     {actor:'人',text:'调整优先级与资源分配，做决策判断'},
+     {actor:'AI',text:'沉淀复盘记录，更新项目状态'}
+   ],
+   scene:'项目管理、市场运营、跨部门协同、内容流程推进等团队任务密集场景。\n设计师场景：管理访谈/招募/资料流、追踪测试问题、把体验问题转为持续协作任务。\n局限：以单 Agent 协作为主，依附 Asana 原有逻辑。',
+   tags:['项目嵌入','风险识别','AI队友'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'monday-agents',name:'Monday.com Agents',domain:'monday.com',emoji:'📋',subcat:'项目/工作管理平台内嵌型',cat:'任务协作型',tested:'已测试',
+   tagline:'联动项目板 · 自动推流程 · 状态即动作',
+   what:'monday.com 把 agents 放进工作平台，支持在任务板、流程和工作区里直接参与执行，并可通过 Agent Factory 构建器配置不同智能体。',
+   howFlow:'看板状态读取→阻塞项识别→任务自动分发→进度概览更新',
+   howType:'看板联动型 规则驱动型',
+   howMechanism:'AI agents + AI workflows + sidekick + Agent Factory 多层架构，可在任务板、流程和工作区中直接参与执行，也支持通过构建器配置定制化 agent。',
+   howTrigger:'规则触发（看板状态变化或节点临近自动触发）',
+   howOutput:'任务分发/状态更新/进度概览',
+   howOperable:'可直接推任务与状态，输出即为工作区中的可执行动作',
+   howInnovation:'AI 嵌入看板与自动化规则，状态变化即触发后续行动',
+   steps:[
+     {actor:'人',text:'建立"研究-设计-评审-上线"看板结构'},
+     {actor:'AI',text:'识别阻塞项和临近截止节点'},
+     {actor:'AI',text:'自动分发提醒或生成后续任务'},
+     {actor:'人',text:'确认是否调整优先级与负责人'},
+     {actor:'AI',text:'更新进度概览，同步团队状态'}
+   ],
+   scene:'项目管理、市场运营、跨部门协同、内容流程推进。\n设计师场景：自动推进设计看板、研究排期与资料汇总、持续推进优化流。\n局限：需理解 Monday 看板逻辑，对新用户上手成本略高。',
+   tags:['看板联动','状态触发','自动化流程'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'clickup-ai',name:'ClickUp AI Agents',domain:'clickup.com',emoji:'✅',subcat:'项目/工作管理平台内嵌型',cat:'任务协作型',tested:'已测试',
+   tagline:'上下文调用 · 拆解多步任务 · 进入分工流',
+   what:'ClickUp 将其定义为 AI 队友（Super Agents），可被 @ 提及、被分配任务、被直接对话，依赖工作区上下文执行多步操作，更像被拉进团队协作中的 AI 成员。',
+   howFlow:'工作区上下文读取→任务拆解→子任务补全→阶段跟踪总结',
+   howType:'工作区嵌入型 多步执行型',
+   howMechanism:'Super Agents + Workspace context + @mention/direct message/assign task 三种调用方式，依赖工作区上下文执行多步操作，可补全任务说明、拆解子步骤、持续跟踪进展。',
+   howTrigger:'主动触发（@调用或直接分配任务）',
+   howOutput:'子任务拆解/任务说明补全/阶段总结',
+   howOperable:'可补全任务说明、拆解步骤，结果直接进入工作区任务树',
+   howInnovation:'AI 能被 @ 调用并像团队成员一样被分配任务，打破工具与人的角色边界',
+   steps:[
+     {actor:'人',text:'创建需求、研究、设计任务，搭建任务流'},
+     {actor:'AI',text:'在当前任务上下文中被 @ 调用，读取相关信息'},
+     {actor:'AI',text:'拆解子任务并补全任务说明与验收标准'},
+     {actor:'人',text:'选择采纳、修改或重新分配子任务'},
+     {actor:'AI',text:'持续跟踪进展并输出阶段总结'}
+   ],
+   scene:'任务密集型团队、产品团队、内容团队和文档协作场景。\n设计师场景：管理从需求到交付的设计任务流、协调分析任务、多轮迭代推进。\n局限：对 ClickUp 用户较友好，平台外使用价值有限。',
+   tags:['@调用','多步协作','任务拆解'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:4},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'atlassian-rovo',name:'Atlassian Rovo Agents',domain:'atlassian.com',emoji:'🔷',subcat:'项目/工作管理平台内嵌型',cat:'任务协作型',tested:'已测试',
+   tagline:'连通Jira库 · 统一协作口 · 文档转任务',
+   what:'Rovo 是 Atlassian 的组织知识与协作 AI 产品，结合搜索、对话和智能体能力，在 Jira、Confluence 等工具中工作，通过自动化规则和工作流介入任务推进。',
+   howFlow:'Atlassian生态上下文读取→历史页面检索→评审摘要生成→Jira任务创建',
+   howType:'生态联通型 文档驱动型',
+   howMechanism:'Rovo Search + Rovo Chat + Rovo Agents + automation rules/Studio，能读 Atlassian 生态上下文，跨文档、项目、沟通工具协作，将沟通结论直接转化为 Jira 工单。',
+   howTrigger:'被动响应（在 Jira/Confluence 中被调用）',
+   howOutput:'评审摘要/候选Jira任务/文档摘要回写',
+   howOperable:'可直接进入 Jira/Confluence 协作，输出即为可执行工单',
+   howInnovation:'统一 Search + Chat + Agents 入口，兼具搜索、聊天、文档与流程触发四位一体',
+   steps:[
+     {actor:'人',text:'沉淀需求背景与研究结论到 Confluence'},
+     {actor:'AI',text:'检索历史页面与相关 Jira 任务，提取关键信息'},
+     {actor:'AI',text:'生成评审摘要和候选 Jira 任务列表'},
+     {actor:'人',text:'决定哪些问题进入迭代，选择性创建工单'},
+     {actor:'AI',text:'跟踪进展并将结论回写到文档摘要'}
+   ],
+   scene:'Jira/Confluence 驱动的研发、知识协作、项目交付和跨部门协同场景。\n设计师场景：整理研究文档与需求来源、沉淀竞品文档、连接需求变更与设计修正。\n局限：需熟悉 Jira/Confluence，非 Atlassian 生态用户门槛较高。',
+   tags:['Jira联动','文档转任务','生态搜索'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'notion-ai-c',name:'Notion AI',domain:'notion.so',emoji:'📝',subcat:'项目/工作管理平台内嵌型',cat:'任务协作型',tested:'已测试',
+   tagline:'嵌入知识库 · 支持结构化 · 便于沉淀复用',
+   what:'Notion 带 AI 的工作区，既有实时对话式智能助手，也有自定义智能体，可基于页面、数据库和连接应用在后台自动运行，通过触发器和排程持续协作。',
+   howFlow:'页面/数据库上下文读取→摘要补全→对比维度生成→知识库同步',
+   howType:'知识库嵌入型 触发器驱动型',
+   howMechanism:'Notion AI + Custom Agents + docs/databases/connected apps + triggers/schedules。对页面、数据库与知识上下文理解强，可被手动调用，也可通过触发器和排程在后台持续协作。',
+   howTrigger:'原位触发或定时排程（手动调用+自动运行双模式）',
+   howOutput:'文档摘要/数据库记录/对比表/知识页',
+   howOperable:'可直接写入文档与数据库，输出即为可编辑的知识资产',
+   howInnovation:'AI 嵌在页面、数据库和模板中，触发器使其可在后台持续自主协作',
+   steps:[
+     {actor:'人',text:'建立竞品数据库和研究模板，搭建知识框架'},
+     {actor:'AI',text:'补全摘要、对比维度和初步结论'},
+     {actor:'人',text:'筛选有效信息并修正判断，做质量把关'},
+     {actor:'AI',text:'将结论同步到数据库和知识页，自动归档'},
+     {actor:'人',text:'基于沉淀内容产出设计方向或汇报材料'}
+   ],
+   scene:'知识型团队、文档驱动型协作、项目型工作空间。\n设计师场景：访谈纪要与洞察整理、建竞品数据库与对比表、记录版本变化与设计决策。\n局限：强依赖 Notion 平台，跨平台迁移困难。',
+   tags:['知识库','触发器','文档协作'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:5,用户门槛:4},
+   matrix:{'用户研究':'强适配','原型设计':'中等适配','竞品分析':'强适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  // ── 自动化编排/流程执行型 ──
+  {id:'zapier-agents',name:'Zapier Agents',domain:'zapier.com',emoji:'⚡',subcat:'自动化编排/流程执行型',cat:'任务协作型',tested:'已测试',
+   tagline:'跨工具连接 · 事件自动触发 · 推动后续步骤',
+   what:'Zapier 将 Agents 定位为可基于企业知识和大量应用连接能力自动做事的 AI 队友，通过 9000+ 应用连接和后台运行机制执行跨系统自动化流程。',
+   howFlow:'事件监听→数据抓取→AI分类摘要→任务系统同步→成员通知',
+   howType:'跨工具连接型 事件驱动型',
+   howMechanism:'代理 + 公司知识 + 9000+ 应用集成 + 按需/后台运行。通过大量应用连接、触发器和规则执行跨系统任务，既可按命令运行，也可在后台持续自动运行。',
+   howTrigger:'事件触发（跨系统事件或条件满足时自动触发）',
+   howOutput:'跨系统数据同步/任务创建/成员通知',
+   howOperable:'结果直接触发后续动作，执行链路可完全自动化',
+   howInnovation:'跨工具自动触发是核心创新，将碎片化应用连成一条完整执行链',
+   steps:[
+     {actor:'人',text:'定义反馈来源与触发条件，搭建自动化规则'},
+     {actor:'AI',text:'监听事件并实时抓取反馈数据'},
+     {actor:'AI',text:'对反馈进行分类、摘要并同步到任务系统'},
+     {actor:'人',text:'判断哪些问题需进入优先级，做筛选决策'},
+     {actor:'AI',text:'通知相关成员并追踪后续处理状态'}
+   ],
+   scene:'营销自动化、数据同步、线索流转、跨系统运营流程。\n设计师场景：自动汇总用户问卷/表单反馈、自动收集可用性测试反馈、把问题发现接入任务流。\n局限：配置触发器与字段映射门槛较高，非技术用户上手较难。',
+   tags:['9000+应用连接','跨工具触发','自动化编排'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:3,用户门槛:2},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'强适配','迭代优化':'强适配'}},
+
+  {id:'airtable-ai',name:'Airtable AI Agents',domain:'airtable.com',emoji:'🗂️',subcat:'自动化编排/流程执行型',cat:'任务协作型',tested:'已测试',
+   tagline:'绑定数据库 · 自动打标签 · 维护问题库',
+   what:'Airtable 把文档分析、网页搜索、图像生成等智能体能力嵌入记录、表格和应用流程，对业务数据和结构化对象做事，而非开放式聊天。',
+   howFlow:'新记录触发→AI摘要分类→标签打标→统计视图生成→待跟进任务',
+   howType:'结构化数据驱动型',
+   howMechanism:'文档分析 agents + 网页搜索 agents + 图像生成 agents + 定制 agents，绑定记录/表格/字段/视图运行，强于字段与记录关系理解，结果可直接写回表格与视图。',
+   howTrigger:'记录触发（新增或更新记录时自动触发）',
+   howOutput:'摘要标签/分类记录/统计视图/待跟进任务',
+   howOperable:'结果可直接写回表格与视图，与业务数据无缝集成',
+   howInnovation:'AI 与结构化表、记录、字段深度结合，将智能能力嵌入数据库操作层',
+   steps:[
+     {actor:'人',text:'定义字段、标签体系和严重度分类规则'},
+     {actor:'AI',text:'对新增记录自动做摘要与智能分类'},
+     {actor:'人',text:'检查并修正关键标签，确保分类准确'},
+     {actor:'AI',text:'生成统计视图与待跟进任务清单'},
+     {actor:'人',text:'据统计结果安排优化优先级与复测计划'}
+   ],
+   scene:'运营、产品、营销、业务管理等高度依赖数据表和流程管理的场景。\n设计师场景：管理研究样本与访谈记录标签、记录可用性测试问题与严重度、把问题库和行动项联动。\n局限：需熟悉 Airtable 建模，不直接支持原型设计。',
+   tags:['结构化数据','自动标签','问题库管理'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'强适配','迭代优化':'强适配'}},
+
+  {id:'ms-copilot-studio',name:'Microsoft Copilot Studio',domain:'microsoft.com',emoji:'🪟',subcat:'自动化编排/流程执行型',cat:'任务协作型',tested:'已测试',
+   tagline:'自建企业Agent · 连接内部流程 · 支持多端发布',
+   what:'微软面向企业的智能体构建与管理平台，支持图形化搭建流程型智能体，接入业务数据与内部系统，支持定制、连接与多端发布。',
+   howFlow:'服务范围定义→知识库接入→问题分流路径判断→高风险审核→持续优化',
+   howType:'企业级构建型 多端部署型',
+   howMechanism:'agents + 工作流 + 连接器 + 多智能体编排，通过图形化方式搭建流程型智能体，接入业务数据与系统，支持定制并在多端（Teams/Web/移动）发布。',
+   howTrigger:'被动响应（员工或客户发起请求触发）',
+   howOutput:'自动判断分流/初步答复/工单创建',
+   howOperable:'可直接进入组织流程与多端入口，输出直接参与业务服务',
+   howInnovation:'重点在可部署性，将 AI 能力打包成可接企业数据、可多端发布的组织级服务',
+   steps:[
+     {actor:'人',text:'定义服务范围与边界，规划 Agent 职责'},
+     {actor:'人',text:'接入知识库和流程规则，完成配置'},
+     {actor:'AI',text:'接收问题并自动判断分流路径'},
+     {actor:'人',text:'审核高风险输出与关键规则，确保质量'},
+     {actor:'AI',text:'持续处理重复问题并沉淀数据，优化流程'}
+   ],
+   scene:'企业内部自动化、客服流程、审批流、跨系统业务流。\n设计师场景：搭建设计团队内部需求分诊 Agent、辅助内部知识检索、跨部门问题流转。\n局限：配置与部署门槛较高，适合有 IT 支持的组织级场景。',
+   tags:['企业级构建','多端发布','流程自动化'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:5,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'salesforce-agentforce',name:'Salesforce Agentforce',domain:'salesforce.com',emoji:'☁️',subcat:'自动化编排/流程执行型',cat:'任务协作型',tested:'已测试',
+   tagline:'绑定CRM数据 · 承接服务流 · 转化体验问题',
+   what:'Salesforce 的企业级自治智能体平台，agents 连接 Salesforce 生态和企业数据，自主回答、执行动作、参与销售/服务/营销和商业流程。',
+   howFlow:'客户旅程节点定义→CRM记录读取→高频问题识别→优化任务生成→后续流程同步',
+   howType:'CRM驱动型 业务流嵌入型',
+   howMechanism:'AI agent + agent 构建器 + Salesforce 生态 + 企业数据/工具，强于客户数据与服务历史语境，可直接连接工单与业务动作，结合 CRM、服务流与自治逻辑协同。',
+   howTrigger:'事件触发（客户行为或服务事件驱动）',
+   howOutput:'问题摘要/候选优化任务/服务工单',
+   howOperable:'可直接连接工单与业务动作，输出直接参与客户服务流程',
+   howInnovation:'AI 进入业务服务流处理任务，将客户体验问题接入正式迭代链路',
+   steps:[
+     {actor:'人',text:'定义关注的客户旅程节点与服务范围'},
+     {actor:'AI',text:'读取 CRM 与服务记录，识别高频问题'},
+     {actor:'AI',text:'生成问题摘要和候选优化任务列表'},
+     {actor:'人',text:'判断哪些问题进入设计迭代，做优先级决策'},
+     {actor:'AI',text:'将被选问题同步到后续协作流程'}
+   ],
+   scene:'客户关系管理、销售流程、营销自动化、客户服务场景。\n设计师场景：分析客户触点和投诉反馈、从服务记录发现体验问题、将体验问题接入正式迭代流程。\n局限：偏企业平台能力，非 Salesforce 生态用户门槛极高。',
+   tags:['CRM联动','服务流嵌入','体验问题转化'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'relevance-ai',name:'Relevance AI',domain:'relevanceai.com',emoji:'🤝',subcat:'自动化编排/流程执行型',cat:'任务协作型',tested:'已测试',
+   tagline:'多Agent编排 · 支持Playbook · 流程可复用',
+   what:'AI 工作队伍平台，将多个智能体组织成工作队伍，通过事件、信号和固定流程自动触发，强调后台持续运行的流程劳动力。',
+   howFlow:'输入源定义→Agent1清洗反馈→Agent2主题分类→Agent3行动建议→人工审核高风险',
+   howType:'多Agent编排型 Playbook驱动型',
+   howMechanism:'员工队伍（优化后的 agent 团队）+ 事件/信号触发器 + GTM 操作流程表。把多个智能体组织成工作队伍，通过 Playbook 固化流程，可接多数据源并保持流程上下文。',
+   howTrigger:'事件/信号触发（后台持续运行）',
+   howOutput:'清洗后的反馈/主题分类/行动建议/优先级排序',
+   howOperable:'结果多为结构化输出与后续流程，可直接进入下一执行节点',
+   howInnovation:'多 Agent 工作队伍 + Playbook，将复杂重复流程变成可复用的自动化流水线',
+   steps:[
+     {actor:'人',text:'定义输入源、分类维度和输出格式，设计流水线'},
+     {actor:'AI',text:'Agent1 清洗原始反馈，去噪处理'},
+     {actor:'AI',text:'Agent2 做主题分类与聚类，提取规律'},
+     {actor:'AI',text:'Agent3 输出行动建议与优先级排序'},
+     {actor:'人',text:'审核高风险结论，决定是否进入迭代'}
+   ],
+   scene:'获客、销售支持、客户成功和增长团队等流程高度重复的业务。\n设计师场景：批量整理用户反馈和研究文本、大规模资料整理与竞品比较、把分类/优先级/分发做成流水线。\n局限：搭建与调试门槛较高，适合有流程设计能力的团队。',
+   tags:['多Agent队伍','Playbook','流水线'],
+   radar:{交互创新度:4,输出可操作性:5,Agent协作复杂度:5,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'强适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  // ── 企业流程/部门工作型 ──
+  {id:'servicenow-ai',name:'ServiceNow AI Agents',domain:'servicenow.com',emoji:'🏢',subcat:'企业流程/部门工作型',cat:'任务协作型',tested:'已测试',
+   tagline:'嵌入服务流 · 自动分流工单 · 跟踪工单状态',
+   what:'ServiceNow 将 AI Agents 放在企业服务平台中，从简单响应到复杂问题处理全程参与，依赖企业流程、脚本、子流程和技能模块，在服务面板等入口中被调用。',
+   howFlow:'请求接收→类别与优先级判断→初步答复/工单创建→专业问题转人工→状态跟踪沉淀',
+   howType:'企业服务流嵌入型',
+   howMechanism:'AI agents + 工具（动作流程/子流程/脚本/技能）+ 协助面板/上下文菜单/虚拟 Agent，涉及分级处理与多步骤流转，强于服务流程与历史工单理解。',
+   howTrigger:'被动响应（员工提交请求触发）',
+   howOutput:'自动分流/初步答复/工单创建/状态追踪',
+   howOperable:'可直接转工单与状态流转，输出直接进入企业服务流程',
+   howInnovation:'AI 在服务流中承担执行层角色，从请求到分流到跟踪全链路覆盖',
+   steps:[
+     {actor:'人',text:'定义可受理问题类型与服务范围'},
+     {actor:'AI',text:'接收请求并判断类别与优先级'},
+     {actor:'AI',text:'初步答复或自动创建工单'},
+     {actor:'人',text:'处理需专业判断的复杂问题'},
+     {actor:'AI',text:'跟踪工单状态并沉淀常见问题知识库'}
+   ],
+   scene:'信息技术服务、人力支持、内部工单处理、企业服务运营。\n设计师场景：运营设计系统/设计支持服务台、把可用性问题纳入标准服务流程。\n局限：偏企业平台场景，不适合开放式研究，不直接支持原型。',
+   tags:['服务台','工单流转','企业IT服务'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'弱适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'hubspot-breeze',name:'HubSpot Breeze Agents',domain:'hubspot.com',emoji:'🧡',subcat:'企业流程/部门工作型',cat:'任务协作型',tested:'已测试',
+   tagline:'读取客户触点 · 提炼用户问题 · 联动后续任务',
+   what:'HubSpot 把 Breeze Agents 定位成持续在线的部门型 AI 队友，基于 CRM 信息、客户上下文和营销销售流程运行，自动处理内容、线索、客户服务等任务。',
+   howFlow:'客户接触点定义→CRM记录读取→高频痛点归纳→问题摘要生成→任务流同步',
+   howType:'CRM感知型 部门助手型',
+   howMechanism:'Breeze agents + CRM 上下文 + 市场营销/销售/服务工作流程。对客户触点上下文理解强，以单流程自动化为主，结果可转任务与后续运营动作。',
+   howTrigger:'自动触发（客户行为或 CRM 记录更新触发）',
+   howOutput:'高频痛点摘要/问题分类/待处理任务',
+   howOperable:'结果可转任务与后续运营动作，打通营销服务与产品迭代链路',
+   howInnovation:'在业务平台内部持续工作的部门助手，将客户问题反馈直接接入产品迭代',
+   steps:[
+     {actor:'人',text:'确定关注的客户接触点与分析维度'},
+     {actor:'AI',text:'读取 CRM 记录和沟通摘要，提取原始数据'},
+     {actor:'AI',text:'归纳高频痛点并生成结构化摘要'},
+     {actor:'人',text:'判断哪些问题属于设计范畴，做专业筛选'},
+     {actor:'AI',text:'将被选问题同步到任务流，推动后续跟进'}
+   ],
+   scene:'营销、销售、客户服务和客户运营场景。\n设计师场景：从营销/客服触点提取体验问题、把客户问题反馈到产品/设计迭代。\n局限：更偏自有客户数据，不适合独立竞品分析，需一定业务理解。',
+   tags:['CRM感知','部门助手','客户触点'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:3,上下文感知能力:4,用户门槛:3},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'moveworks-ai',name:'Moveworks AI Agent Builder',domain:'moveworks.com',emoji:'🔧',subcat:'企业流程/部门工作型',cat:'任务协作型',tested:'已测试',
+   tagline:'跨系统协调 · 支持内部服务 · 减少重复沟通',
+   what:'Moveworks 强调自己是员工工作流中的 AI 平台，把助手能力和智能体构建能力结合，接入企业应用和知识系统，在内部服务和员工任务中自动处理工作。',
+   howFlow:'任务定义→系统接入→问题接收→跨系统检索/分流→人工接管复杂问题→高频问题优化',
+   howType:'跨系统编排型 员工支持型',
+   howMechanism:'AI 助手 + AI agent 构建器 + 企业应用集成 + 全程自动化。支持跨系统编排，可连接组织内部多系统，既有问答也有端到端任务自动化。',
+   howTrigger:'被动响应（员工发起请求触发）',
+   howOutput:'跨系统检索结果/自动分流/任务执行',
+   howOperable:'可联动跨应用任务和服务动作，输出直接参与员工工作流',
+   howInnovation:'把助手能力和 Agent 搭建结合，将企业内部多系统协调变成统一体验',
+   steps:[
+     {actor:'人',text:'定义 Agent 能处理的任务范围'},
+     {actor:'人',text:'接入文档、项目系统和沟通入口，完成配置'},
+     {actor:'AI',text:'接收问题并调用相应系统执行检索或分流'},
+     {actor:'人',text:'对复杂问题进行人工接管，确保质量'},
+     {actor:'AI',text:'记录高频问题并优化后续处理流程'}
+   ],
+   scene:'企业信息技术、内部知识问答、员工支持和跨系统流程自动化。\n设计师场景：搭建设计项目协调与知识检索 Agent、跨团队设计协作与问题流转。\n局限：更适合组织级搭建，个人或小团队使用价值有限。',
+   tags:['跨系统编排','员工支持','内部服务'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:5,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'google-agentspace',name:'Google Agentspace / Gemini Enterprise',domain:'workspace.google.com',emoji:'🔵',subcat:'企业流程/部门工作型',cat:'任务协作型',tested:'已测试',
+   tagline:'统一搜索入口 · 整合调用流程 · 减少切换成本',
+   what:'Google 企业级智能体平台，支持官方智能体、自定义智能体和第三方智能体，通过企业应用和组织数据统一发现、创建和运行，在安全平台中管理和部署企业级智能体。',
+   howFlow:'问题/任务输入→多系统统一搜索→结构化结果返回→可调用动作建议→后续工作流接入',
+   howType:'统一入口型 多Agent组织型',
+   howMechanism:'Google agents + 自定义 agents + 合作伙伴 agents + 商业应用连接 + 监督机制。跨系统检索与组织语境理解极强，支持统一入口下的多 Agent 组织。',
+   howTrigger:'被动响应（统一入口问题输入触发）',
+   howOutput:'跨系统检索结果/可调用动作/后续工作流触发',
+   howOperable:'可从检索直接进入后续调用，统一入口大幅减少跨工具切换成本',
+   howInnovation:'将搜索、调用、编排放在统一入口，让企业知识工作从分散走向一体化',
+   steps:[
+     {actor:'人',text:'输入当前问题或任务目标，通过统一入口发起'},
+     {actor:'AI',text:'在多系统中统一搜索相关资料与历史记录'},
+     {actor:'AI',text:'返回结构化结果并给出可调用的后续动作'},
+     {actor:'人',text:'选择继续检索、摘要或触发后续任务'},
+     {actor:'AI',text:'将结果接入下一步工作流，推动执行'}
+   ],
+   scene:'大型企业内部办公协作、跨应用知识工作和企业级智能体治理。\n设计师场景：跨系统查研究资料和历史知识、在多系统中快速找到相关知识并推动后续动作。\n局限：搭建仍需基础，非 Google Workspace 生态用户整合效果有限。',
+   tags:['统一入口','跨系统检索','企业Agent平台'],
+   radar:{交互创新度:4,输出可操作性:4,Agent协作复杂度:4,上下文感知能力:5,用户门槛:3},
+   matrix:{'用户研究':'强适配','原型设计':'弱适配','竞品分析':'中等适配','可用性测试':'中等适配','迭代优化':'强适配'}},
+
+  {id:'zoom-ai',name:'Zoom Tasks + AI Companion',domain:'zoom.us',emoji:'🎥',subcat:'企业流程/部门工作型',cat:'任务协作型',tested:'已测试',
+   tagline:'总结会议纪要 · 提取行动项 · 推动会后跟进',
+   what:'Zoom 把 AI 直接接到了会议后的任务管理上，依赖会议总结、通话记录和转录内容，自动识别任务、推荐下一步并帮助创建和管理任务，在沟通发生后自动延续任务推进。',
+   howFlow:'会议记录→重点自动记录→待办/责任人/截止提取→行动项确认→会后总结同步',
+   howType:'会议驱动型 任务承接型',
+   howMechanism:'AI 伙伴 + 会议总结/电话总结/转录文本 + 任务建议/任务生成。主要感知会议语境，以会议摘要和待办提取为主链路，学习成本低，会议内直接使用。',
+   howTrigger:'自动触发（会议结束后自动生成）',
+   howOutput:'会议纪要/行动项列表/责任人/截止时间',
+   howOperable:'纪要与行动项可直接执行，会后即为下一步工作起点',
+   howInnovation:'在沟通发生后自动延续任务推进，将会议结论无缝转化为行动项',
+   steps:[
+     {actor:'人',text:'召开设计评审/复盘会议'},
+     {actor:'AI',text:'自动记录会议重点与关键讨论'},
+     {actor:'AI',text:'提取待办、责任人与截止时间信息'},
+     {actor:'人',text:'确认行动项是否准确，做微调'},
+     {actor:'AI',text:'输出会后总结并同步到任务列表'}
+   ],
+   scene:'会议密集型团队、咨询、销售、跨部门协同和项目跟进场景。\n设计师场景：整理访谈或评审会议纪要、把讨论结果转成行动项、整理测试回顾会议结论。\n局限：创新集中在会议后任务承接，不适合独立完成竞品分析。',
+   tags:['会议纪要','行动项提取','会后跟进'],
+   radar:{交互创新度:3,输出可操作性:4,Agent协作复杂度:2,上下文感知能力:3,用户门槛:5},
+   matrix:{'用户研究':'中等适配','原型设计':'弱适配','竞品分析':'弱适配','可用性测试':'中等适配','迭代优化':'中等适配'}},
+
+  // ── 专业任务代理型 ──
+  {id:'devin',name:'Devin',domain:'cognition.ai',emoji:'🤖',subcat:'专业任务代理型',cat:'任务协作型',tested:'已测试',
+   tagline:'接受目标任务 · 自主分步执行 · 偏委派协作',
+   what:'Devin 定位为 AI 软件工程师，依赖浏览器、编辑器、命令行等多种工程工具完成工作，不只回答代码问题，而是围绕任务目标持续自主执行，代表更高自治度的代理协作。',
+   howFlow:'目标/范围/验收标准接收→自主步骤拆分→上下文持续读取→阶段结果交付→过程记录返回',
+   howType:'自主执行型 长任务代理型',
+   howMechanism:'Devin + 浏览器/编辑器/shell + 任务助手/审查循环。依赖多种工程工具，不只回答而是持续执行，在任务过程中持续读取上下文，以单代理长任务执行为主但链路极长。',
+   howTrigger:'被动响应（明确目标任务委派触发）',
+   howOutput:'较完整的执行结果（代码/文件/报告）+过程记录',
+   howOperable:'输出不是建议而是较完整执行结果，可直接交付使用',
+   howInnovation:'代表更高自治度的代理协作，把"委派任务给 AI 执行"变为现实',
+   steps:[
+     {actor:'人',text:'给出目标、范围和验收标准，明确任务边界'},
+     {actor:'AI',text:'自主拆分步骤并开始执行，持续推进'},
+     {actor:'AI',text:'在执行过程中持续读取上下文，自主解决问题'},
+     {actor:'人',text:'检查阶段结果并纠偏，保持监督'},
+     {actor:'AI',text:'完成交付并返回完整过程记录'}
+   ],
+   scene:'软件开发、测试修复、工程任务分解和代码相关的专业场景。\n设计师场景：辅助搭建原型相关实现或逻辑、承接明确边界清晰的改动任务、抓取和整理结构化信息。\n局限：高能力伴随更高的理解和监督成本，不适合开放式探索型任务。',
+   tags:['自主执行','软件工程','长任务代理'],
+   radar:{交互创新度:5,输出可操作性:5,Agent协作复杂度:4,上下文感知能力:4,用户门槛:2},
+   matrix:{'用户研究':'弱适配','原型设计':'中等适配','竞品分析':'中等适配','可用性测试':'弱适配','迭代优化':'中等适配'}}
+];
+
+TOOLS.push(...COLLAB_TOOLS);
+
+const SUBCATS_C = ['项目/工作管理平台内嵌型','自动化编排/流程执行型','企业流程/部门工作型','专业任务代理型'];
+const SUBCAT_LABELS_C = {
+  '项目/工作管理平台内嵌型':'AI 不是悬浮在外的问答工具，而是进入项目流、感知任务状态与成员分工的协作成员',
+  '自动化编排/流程执行型':'核心价值在于连接系统、触发流程、自动执行动作，是跨工具流程里的编排层与执行层',
+  '企业流程/部门工作型':'直接服务于企业某个部门或某条业务线，依赖组织知识、业务规则和权限体系工作',
+  '专业任务代理型':'承担某类专业岗位的长链路任务，具备更专业的工具链、更长的执行过程和更强的自主性'
+};
+
+function switchCollabSecPane(tabEl,paneId){
+  const bar=tabEl.closest('.sec-nav-tabs');
+  bar.querySelectorAll('.sec-nav-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  ['c-sec-pane-tools','c-sec-pane-how','c-sec-pane-scene'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList[id===paneId?'add':'remove']('active');
+  });
+}
+
+function switchCollabHowTab(el,panelId){
+  el.closest('.how-tabs').querySelectorAll('.how-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['c-how-flow','c-how-steps','c-how-table'].forEach(id=>{
+    const el2=document.getElementById(id);
+    if(el2) el2.style.display=id===panelId?'block':'none';
+  });
+}
+
+function renderCollab(){
+  const container=document.getElementById('c-tool-area');
+  if(!container) return;
+  let html='';
+  SUBCATS_C.forEach(subcat=>{
+    const tools=TOOLS.filter(t=>t.subcat===subcat&&t.cat==='任务协作型');
+    html+=`<div class="subcat-row">
+      <div class="subcat-divider"></div><div class="subcat-label">${subcat}</div>
+      <div class="subcat-oneliner">${SUBCAT_LABELS_C[subcat]||''}</div>
+      <div class="namecard-grid" id="nc-grid-c-${subcat.replace(/[\/\s]/g,'_')}">
+        ${tools.map(t=>renderNamecard(t)).join('')}
+      </div>
+      <div class="detail-panel" id="dp-${subcat.replace(/\//g,'_')}"></div>
+    </div>`;
+  });
+  container.innerHTML=html;
+  document.querySelectorAll('#c-tool-area .namecard').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      dragging=true;
+      e.dataTransfer.setData('toolId',card.dataset.id);
+      document.getElementById('dropZone').classList.add('visible');
+    });
+    card.addEventListener('dragend',()=>{
+      dragging=false;
+      document.getElementById('dropZone').classList.remove('visible');
+    });
+  });
+}
+
+function buildCollabCollabTimeline(){
+  const ct=TOOLS.filter(t=>t.cat==='任务协作型'&&t.steps&&t.steps.length);
+  const container=document.getElementById('c-collab-timeline');
+  if(!container) return;
+  let html='';
+  ct.forEach(t=>{
+    const total=t.steps.length;
+    let segs='';
+    t.steps.forEach((step,i)=>{
+      const cls=step.actor==='AI'?'ct-ai':step.actor.includes('+')&&step.actor.includes('AI')?'ct-both':'ct-human';
+      const left=i*(100/total);
+      const width=100/total;
+      segs+=`<div class="ct-seg ${cls}" style="left:${left.toFixed(1)}%;width:${width.toFixed(1)}%;" title="${step.actor}: ${step.text}">${step.actor}</div>`;
+    });
+    html+=`<div class="ct-row">
+      <div class="ct-tool">${t.emoji} ${t.name}</div>
+      <div class="ct-track">${segs}</div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function buildCollabHowTable(){
+  const ct=TOOLS.filter(t=>t.cat==='任务协作型');
+  const tbody=document.getElementById('c-how-table-body');
+  if(!tbody) return;
+  tbody.innerHTML=ct.map(t=>`<tr>
+    <td>${t.emoji} ${t.name}</td>
+    <td>${t.howTrigger||'-'}</td>
+    <td style="font-size:12px">${t.howFlow}</td>
+    <td>${t.howOutput||'-'}</td>
+    <td>${t.howOperable||'-'}</td>
+    <td style="font-size:12px">${t.howInnovation||'-'}</td>
+  </tr>`).join('');
+}
+
+function buildCollabMatrix(){
+  const ct=TOOLS.filter(t=>t.cat==='任务协作型');
+  const container=document.getElementById('c-matrix');
+  if(!container) return;
+  const cellMap={'强适配':'mx-strong 强','中等适配':'mx-mid 中','弱适配':'mx-weak 弱','不适用':'mx-none -'};
+  container.innerHTML=ct.map(t=>{
+    const cells=MATRIX_STAGES.map(stage=>{
+      const val=t.matrix[stage]||'不适用';
+      const[cls,label]=(cellMap[val]||'mx-none -').split(' ');
+      return `<div class="mx-cell ${cls}">${label}</div>`;
+    }).join('');
+    return `<div class="mx-row">
+      <div class="mx-tool">${t.emoji} ${t.name}</div>
+      ${cells}
+    </div>`;
+  }).join('');
+}
+
+function buildCollabRadarCharts(){
+  const ct=TOOLS.filter(t=>t.cat==='任务协作型'&&t.radar);
+  const container=document.getElementById('c-radar-grid');
+  if(!container||!window.Chart) return;
+  const dims=['交互创新度','输出可操作性','Agent协作复杂度','上下文感知能力','用户门槛'];
+  const colors=[
+    ['rgba(52,211,153,0.15)','rgba(52,211,153,0.7)','rgba(52,211,153,1)'],
+    ['rgba(16,185,129,0.15)','rgba(16,185,129,0.7)','rgba(16,185,129,1)'],
+    ['rgba(110,231,183,0.15)','rgba(110,231,183,0.7)','rgba(110,231,183,1)'],
+    ['rgba(167,243,208,0.15)','rgba(167,243,208,0.7)','rgba(167,243,208,1)'],
+  ];
+  const subcatOrder=['项目/工作管理平台内嵌型','自动化编排/流程执行型','企业流程/部门工作型','专业任务代理型'];
+  container.innerHTML=ct.map(t=>`
+    <div class="radar-card">
+      <div class="radar-card-name">${t.emoji} ${t.name}</div>
+      <canvas id="c-radar-${t.id}" width="200" height="200"></canvas>
+    </div>`).join('');
+  ct.forEach(t=>{
+    const ctx=document.getElementById(`c-radar-${t.id}`)?.getContext('2d');
+    if(!ctx) return;
+    const ci=subcatOrder.indexOf(t.subcat)%colors.length;
+    const[bg,border,point]=colors[ci<0?0:ci];
+    new Chart(ctx,{
+      type:'radar',
+      data:{
+        labels:dims,
+        datasets:[{
+          data:dims.map(d=>t.radar[d]||0),
+          backgroundColor:bg,borderColor:border,borderWidth:1.5,
+          pointBackgroundColor:point,pointRadius:3
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false}},
+        scales:{r:{
+          min:0,max:5,ticks:{display:false,stepSize:1},
+          grid:{color:'rgba(255,255,255,0.06)'},
+          angleLines:{color:'rgba(255,255,255,0.06)'},
+          pointLabels:{color:'#8888aa',font:{size:10,family:"'Noto Sans SC',sans-serif"}}
+        }}
+      }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// SCROLL BEHAVIORS
+// ═══════════════════════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const searchSection=document.getElementById('search-section');
+  const rect=searchSection.getBoundingClientRect();
+  const float=document.getElementById('searchFloat');
+  if(rect.bottom < 0) float.classList.add('visible');
+  else float.classList.remove('visible');
+});
+
+// NAV active
+const navLinks=document.querySelectorAll('.nav-links a');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      const a=document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if(a) a.classList.add('active');
+    }
+  });
+},{threshold:.3});
+document.querySelectorAll('section[id]').forEach(s=>observer.observe(s));
+document.querySelectorAll('.section-wrap[id]').forEach(s=>observer.observe(s));
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderUnderstand();
+buildCollabTimeline();
+buildHowTable();
+buildMatrix();
+setTimeout(buildRadarCharts, 200); // after Chart.js loads
+renderGenerate();
+buildGenCollabTimeline();
+buildGenHowTable();
+buildGenMatrix();
+setTimeout(buildGenRadarCharts, 400);
+renderDecide();
+buildDecideCollabTimeline();
+buildDecideHowTable();
+buildDecideMatrix();
+setTimeout(buildDecideRadarCharts, 600);
+renderCollab();
+buildCollabCollabTimeline();
+buildCollabHowTable();
+buildCollabMatrix();
+setTimeout(buildCollabRadarCharts, 800);
+</script>
+</body>
+</html>
