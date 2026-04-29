@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bldoc——AI工具白皮书，为交互设计师而生</title>
+<title>Bldoc-AI工具白皮书，为交互设计师而生</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -258,7 +258,7 @@ nav{
   color:rgba(255,255,255,.32);letter-spacing:.22em;margin-bottom:8px;text-transform:uppercase;
 }
 .sec-eyebrow{
-  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.28em;
+  font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.22em;
   color:var(--green);text-transform:uppercase;margin-bottom:10px;display:block;
 }
 .sec-title{
@@ -557,7 +557,7 @@ nav{
 /* detail panel section titles */
 .dp-section-title{
   font-family:'Space Mono',monospace;
-  font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
   color:var(--green);margin-top:18px;margin-bottom:6px;
   padding-bottom:5px;border-bottom:1px solid rgba(51,227,111,.15);
 }
@@ -919,6 +919,80 @@ nav{
 .screenshot-upload label:hover{border-color:rgba(51,227,111,.35);color:rgba(51,183,90,.8);}
 .screenshot-preview-grid{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
 .screenshot-preview-grid img{width:64px;height:64px;object-fit:cover;border-radius:5px;border:1px solid rgba(255,255,255,.09);}
+
+/* ══ DETAIL RIGHT PANE: large screenshots + upload btn positioning ══ */
+.detail-right{position:relative !important;}
+.dr-pane-ss-inner{
+  display:flex;flex-direction:column;gap:14px;
+  padding-bottom:72px; /* space for upload btn */
+  overflow-y:auto;max-height:420px;
+}
+.dr-screenshot-large{
+  width:100%;border-radius:10px;
+  border:1px solid rgba(255,255,255,.10);
+  object-fit:contain;display:block;
+  box-shadow:0 4px 24px rgba(0,0,0,.35);
+  transition:transform .2s;cursor:zoom-in;
+}
+.dr-screenshot-large:hover{transform:scale(1.01);}
+.dr-upload-fab{
+  position:absolute;bottom:18px;right:18px;z-index:20;
+  display:flex;align-items:center;gap:7px;
+  padding:10px 18px;border-radius:8px;
+  background:var(--green);color:var(--black);
+  font-size:12px;font-weight:800;letter-spacing:.06em;
+  cursor:pointer;border:none;
+  box-shadow:0 4px 18px rgba(51,227,111,.38),0 2px 8px rgba(0,0,0,.3);
+  transition:all .22s;white-space:nowrap;
+}
+.dr-upload-fab:hover{background:var(--green-soft);box-shadow:0 6px 24px rgba(51,227,111,.55);}
+.dr-upload-fab svg{width:15px;height:15px;flex-shrink:0;}
+
+/* ══ EXPERIENCE CHAT BUBBLES ══ */
+.exp-chat-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.exp-chat-bubble{
+  display:flex;gap:10px;align-items:flex-start;
+}
+.exp-chat-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:rgba(51,108,255,.15);border:1.5px solid rgba(51,108,255,.3);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.exp-chat-body{
+  max-width:85%;background:rgba(51,108,255,.10);
+  border:1px solid rgba(51,108,255,.22);
+  border-radius:0 12px 12px 12px;
+  padding:10px 14px;font-size:12px;line-height:1.7;
+  color:var(--text-light);position:relative;
+}
+.exp-chat-body::before{
+  content:'';position:absolute;top:10px;left:-7px;
+  width:0;height:0;
+  border-top:6px solid transparent;
+  border-bottom:6px solid transparent;
+  border-right:7px solid rgba(51,108,255,.22);
+}
+.exp-chat-label{
+  font-size:9px;font-weight:700;letter-spacing:.1em;
+  color:rgba(110,150,255,.75);text-transform:uppercase;margin-bottom:5px;
+}
+/* sec-light overrides for bubbles */
+.sec-light .exp-chat-body{
+  background:rgba(51,108,255,.07) !important;
+  border-color:rgba(51,108,255,.18) !important;
+  color:#101010 !important;
+}
+.sec-light .exp-chat-body::before{border-right-color:rgba(51,108,255,.18) !important;}
+.sec-light .exp-chat-label{color:rgba(51,80,200,.65) !important;}
+.sec-light .exp-chat-avatar{background:rgba(51,108,255,.08) !important;border-color:rgba(51,108,255,.2) !important;}
+/* sec-light override for upload fab */
+.sec-light .dr-upload-fab{background:var(--green) !important;color:#030303 !important;}
+/* ss empty state */
+.dr-ss-empty{
+  text-align:center;padding:36px 20px;
+  color:rgba(0,0,0,.32);font-size:13px;
+}
+.dr-ss-empty .dr-ss-empty-icon{font-size:36px;margin-bottom:12px;opacity:.5;}
 
 /* ══ DROP ZONE ══ */
 #dropZone{
@@ -2828,6 +2902,28 @@ async function toggleDetail(id){
   }
 
   // 渲染详情页面板
+  // Build chat bubbles from expText (split by newline into individual bubbles)
+  const bubbleLines = expText ? expText.split(/\n+/).map(s=>s.trim()).filter(Boolean) : [];
+  const bubblesHtml = bubbleLines.length ? `
+    <div class="exp-chat-wrap">
+      ${bubbleLines.map((line,i)=>`
+        <div class="exp-chat-bubble">
+          <div class="exp-chat-avatar">👤</div>
+          <div class="exp-chat-body">
+            <div class="exp-chat-label">小组成员体验 ${bubbleLines.length>1?`#${i+1}`:''}</div>
+            ${line}
+          </div>
+        </div>`).join('')}
+    </div>` : '';
+
+  // Build large screenshot list for 关键界面 pane
+  const ssHtml = expImgs.length ? expImgs.map(src=>`<img class="dr-screenshot-large" src="${src}" alt="界面截图">`).join('') : `
+    <div class="dr-ss-empty">
+      <div class="dr-ss-empty-icon">🖼️</div>
+      <div>暂无截图</div>
+      <div style="font-size:11px;margin-top:4px;opacity:.7">点击右下角按钮上传关键界面</div>
+    </div>`;
+
   panel.innerHTML = `
     <div class="detail-left">
       <button class="dp-close" onclick="toggleDetail('${id}')">✕</button>
@@ -2844,17 +2940,9 @@ async function toggleDetail(id){
         <div class="dp-flow">${t.howFlow.split('→').map((step,i,arr)=>`<span class="dp-flow-step">${step.trim()}</span>${i<arr.length-1?'<span class="dp-flow-arrow">→</span>':''}`).join('')}</div>
         <span style="color:var(--dimmer);font-size:12px">${t.howType}</span><br><br>${t.howMechanism}
       </div>
-      
-      ${expText||expImgs.length?`<div class="dp-section-title" style="margin-top:24px; border-bottom-color:rgba(0,0,0,0.1)">小组成员体验记录</div>
-      <div class="saved-exp show" style="margin-top:12px">
-        ${expText?`<p style="color:rgba(0,0,0,0.7);font-size:13px;line-height:1.6;margin-bottom:12px;background:rgba(0,0,0,0.03);padding:12px;border-radius:6px;">${expText}</p>`:''}
-        <div class="screenshot-preview-grid">
-          ${expImgs.map(i=>`<img src="${i}" style="border:1px solid rgba(0,0,0,0.1)">`).join('')}
-        </div>
-      </div>`:''}
     </div>
     
-    <div class="detail-right" style="padding:24px;display:flex;flex-direction:column;overflow:hidden;">
+    <div class="detail-right" style="padding:24px;display:flex;flex-direction:column;overflow:hidden;position:relative;">
       <div class="dr-tab-bar">
         <div class="dr-tab active" onclick="switchDrTab(this,'dr-pane-ss-${id}')">关键界面</div>
         <div class="dr-tab" onclick="switchDrTab(this,'dr-pane-collab-${id}')">人机协作图谱</div>
@@ -2862,9 +2950,9 @@ async function toggleDetail(id){
       </div>
       
       <div class="dr-pane active" id="dr-pane-ss-${id}">
-        <div class="screenshot-upload" style="margin-top:30px;text-align:center;">
-          <button class="btn btn-primary" onclick="openExpModal('${id}')">上传使用体验与截图</button>
-          <p style="margin-top:14px;font-size:12px;color:rgba(0,0,0,0.4)">✨ 上传后小组全体成员均可实时查看</p>
+        <div class="dr-pane-ss-inner">
+          ${bubblesHtml}
+          ${ssHtml}
         </div>
       </div>
       
@@ -2883,6 +2971,12 @@ async function toggleDetail(id){
           <canvas id="dp-radar-canvas-${id}" width="260" height="260"></canvas>
         </div>
       </div>
+
+      <!-- 上传按钮：固定在右下角 -->
+      <button class="dr-upload-fab" onclick="openExpModal('${id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        上传使用体验与截图
+      </button>
     </div>`;
     
   setTimeout(()=>buildDetailRadar(id), 50);
