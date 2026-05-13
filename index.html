@@ -2996,7 +2996,7 @@ function handleScreenshot(e,id){
       ss.push(ev.target.result);
       store[id]={...saved,screenshots:ss};
       saveStore();
-      const grid=document.getElementById(`ss-${id}`);
+      const grid=document.getElementById(`-${id}`);
       if(grid){const img=document.createElement('img');img.src=ev.target.result;grid.appendChild(img);}
     };
     r.readAsDataURL(file);
